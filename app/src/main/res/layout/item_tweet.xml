@@ -57,8 +57,50 @@
             android:padding="4dp"
             android:maxLines="4"
             android:ellipsize="end"
+            android:autoLink="all"
+            android:linksClickable="true"
+            android:textColorLink="@color/googleBlue"
             tools:text= "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sagittis iaculis est at gravida. Nunc at metus sit amet eros vulputate dapibus a sed ligula. Nam et malesuada justo."
             android:id="@+id/tv_tweet_body"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:id="@+id/btn_item_reply"
+                android:background="@drawable/reply"/>
+            <Button
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginStart="40dp"
+                android:id="@+id/btn_item_retweet"
+                android:background="@drawable/retweet"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:id="@+id/tv_count_retweet"
+                android:layout_height="wrap_content"
+                android:text="23"/>
+            <ImageButton
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@android:color/transparent"
+                android:id="@+id/btn_item_like"
+                android:src="@drawable/heart_outline"
+                android:layout_marginLeft="40dp"
+                android:layout_marginStart="40dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_count_like"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="45"/>
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

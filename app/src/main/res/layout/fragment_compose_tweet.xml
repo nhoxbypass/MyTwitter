@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <Button
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -10,10 +11,40 @@
         android:background="@drawable/ic_clear"
         />
 
-        <EditText
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_close_composer"
+        android:id="@+id/reply_container"
+        android:visibility="gone">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="4dp"
+            android:background="@color/grey"/>
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="8dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/arrow_down"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="40dp"
+            android:textColor="@color/grey"
+            android:id="@+id/tv_reply"
+            android:layout_centerVertical="true"
+            android:text="In reply to GeniusQ"/>
+    </RelativeLayout>
+
+    <EditText
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="-16dp"
@@ -22,7 +53,7 @@
             android:hint="Bạn đang nghĩ gì?"
             android:ems="10"
             android:gravity="top|start"
-            android:layout_below="@id/btn_close_composer"
+            android:layout_below="@id/reply_container"
             android:id="@+id/tweet_input" />
 
 
@@ -58,7 +89,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_above="@id/footer_container"
-        android:background="@android:color/black"/>
+        android:background="@color/grey"/>
 
 
 

@@ -15,14 +15,17 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.nhoxb.mysimpletwitter.R;
+import com.example.nhoxb.mysimpletwitter.model.Tweet;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -35,6 +38,9 @@ public class TweetComposerDialogFragment extends DialogFragment
     Button mTweetButton;
     EditText mInputField;
     TextView mCharCountTextview;
+    RelativeLayout mReplyContainer;
+    TextView mReplyText;
+
     private TweetComposerDialogListener mListener;
 
     // 1. Defines the listener interface with a method passing back data result.
@@ -49,9 +55,13 @@ public class TweetComposerDialogFragment extends DialogFragment
         // Use `newInstance` instead as shown below
     }
 
-    public static TweetComposerDialogFragment newInstance()
+    public static TweetComposerDialogFragment newInstance(String name)
     {
         TweetComposerDialogFragment fragment = new TweetComposerDialogFragment();
+
+        Bundle args = new Bundle();
+        args.putString("name",name);
+        fragment.setArguments(args);
 
         return fragment;
     }
@@ -61,8 +71,16 @@ public class TweetComposerDialogFragment extends DialogFragment
         mListener = onTweetedListener;
     }
 
+    private void setReplyMode(String screenName)
+    {
+        mReplyText.setText("In reply to " + screenName);
+        mInputField.setText("@" + screenName);
+        mReplyContainer.setVisibility(View.VISIBLE);
+    }
+
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle savedInstanceState)
+    {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
         //request
@@ -80,11 +98,15 @@ public class TweetComposerDialogFragment extends DialogFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        String replyName = getArguments().getString("name", "");
+
         //get view
         mCloseButton = (Button) view.findViewById(R.id.btn_close_composer);
         mTweetButton = (Button) view.findViewById(R.id.btn_tweet);
         mCharCountTextview = (TextView) view.findViewById(R.id.tv_count_char);
         mInputField = (EditText) view.findViewById(R.id.tweet_input);
+        mReplyContainer  = (RelativeLayout) view.findViewById(R.id.reply_container);
+        mReplyText = (TextView) view.findViewById(R.id.tv_reply);
 
         setCharsCounter(mInputField);
         //
@@ -99,6 +121,18 @@ public class TweetComposerDialogFragment extends DialogFragment
                 dismiss();
             }
         });
+
+        mCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismiss();
+            }
+        });
+
+        if (!(replyName == null || replyName.equals("") || replyName.isEmpty()))
+        {
+            setReplyMode(replyName);
+        }
     }
 
     @Override
@@ -152,6 +186,7 @@ public class TweetComposerDialogFragment extends DialogFragment
                 else
                 {
                     mTweetButton.setEnabled(false);
+                    mReplyContainer.setVisibility(View.GONE);
                 }
 
             }

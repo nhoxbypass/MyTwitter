@@ -1,8 +1,10 @@
 package com.example.nhoxb.mysimpletwitter.activity;
 
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,28 +32,47 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
 public class TimelineActivity extends AppCompatActivity {
 
     private TwitterClient mClient;
     private Gson gson;
-    private RecyclerView mRecyclerView;
+    @BindView(R.id.rv_list_tweet) RecyclerView mRecyclerView;
+    @BindView(R.id.toolbar) Toolbar mToolbar;
+    @BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefresh;
     private TimelineAdapter mTimelineAdapter;
     private LinearLayoutManager layoutManager;
     private SearchView mSearchView;
-    private Toolbar mToolbar;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
+
+        //Toolbar
         setSupportActionBar(mToolbar);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.rv_list_tweet);
-        mTimelineAdapter = new TimelineAdapter();
+        //Pull to refresh
+        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                populateTimeline();
+            }
+        });
+        mSwipeRefresh.setColorSchemeResources(R.color.googleRed, R.color.googleGreen, R.color.googleBlue, R.color.googleYellow);
+        mSwipeRefresh.setProgressViewOffset(true,0,40);
+        mSwipeRefresh.setRefreshing(true);
+
+
+        //Recycler View, Adapter
+        mTimelineAdapter = new TimelineAdapter(this);
         layoutManager = new LinearLayoutManager(TimelineActivity.this);
         RecyclerView.ItemDecoration decoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -116,6 +137,8 @@ public class TimelineActivity extends AppCompatActivity {
                 Log.v("APP","Load success.");
                 List<Tweet> mTweetList = gson.fromJson(response.toString(), new TypeToken<List<Tweet>>(){}.getType() );
                 mTimelineAdapter.setTweet(mTweetList);
+                mSwipeRefresh.setRefreshing(false);
+
             }
 
             @Override
@@ -146,14 +169,14 @@ public class TimelineActivity extends AppCompatActivity {
 
     private void showComposer() {
         FragmentManager fm = getSupportFragmentManager();
-        TweetComposerDialogFragment composerDialogFragment = TweetComposerDialogFragment.newInstance();
+        TweetComposerDialogFragment composerDialogFragment = TweetComposerDialogFragment.newInstance("");
         composerDialogFragment.setStyle(DialogFragment.STYLE_NORMAL,R.style.Dialog_FullScreen);
         composerDialogFragment.show(getFragmentManager(),"fragment_compose_tweet");
         composerDialogFragment.setOnTweetedListener(new TweetComposerDialogFragment.TweetComposerDialogListener() {
             @Override
             public void onTweeted(String body)
             {
-                mClient.updateStatus(body, new JsonHttpResponseHandler()
+                mClient.updateStatus(body, "",new JsonHttpResponseHandler()
                 {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
