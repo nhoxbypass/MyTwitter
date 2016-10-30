@@ -158,9 +158,9 @@ public class TweetComposerDialogFragment extends DialogFragment
     }
 
     //
-    private void setCharsCounter(final TextView textView)
+    private void setCharsCounter(EditText editText)
     {
-        textView.addTextChangedListener(new TextWatcher() {
+        editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 

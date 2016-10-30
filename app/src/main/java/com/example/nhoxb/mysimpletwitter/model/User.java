@@ -28,6 +28,11 @@ public class User {
         return id;
     }
 
+    public int getFavouriteCount() {
+        return favouriteCount;
+    }
+
+
     @SerializedName("id")
     private String id;
     @SerializedName("name")
@@ -38,4 +43,6 @@ public class User {
     private String coverUrl;
     @SerializedName("screen_name")
     private String screenName;
+    @SerializedName("favourites_count")
+    private int favouriteCount;
 }

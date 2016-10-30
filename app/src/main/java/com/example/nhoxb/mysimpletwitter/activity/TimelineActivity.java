@@ -2,6 +2,7 @@ package com.example.nhoxb.mysimpletwitter.activity;
 
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.example.nhoxb.mysimpletwitter.R;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
@@ -43,6 +45,7 @@ public class TimelineActivity extends AppCompatActivity {
     @BindView(R.id.rv_list_tweet) RecyclerView mRecyclerView;
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefresh;
+    @BindView(R.id.fab_compose) FloatingActionButton mFABCompose;
     private TimelineAdapter mTimelineAdapter;
     private LinearLayoutManager layoutManager;
     private SearchView mSearchView;
@@ -82,6 +85,13 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 loadMoreTweet(page);
+            }
+        });
+
+        mFABCompose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showComposer();
             }
         });
 

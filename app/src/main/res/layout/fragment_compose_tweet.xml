@@ -70,6 +70,7 @@
             android:padding="8dp"
             android:layout_gravity="center_vertical|end|right"
             android:gravity="end"
+            android:textColor="@color/grey"
             android:text="140"
             android:id="@+id/tv_count_char"/>
         <Button

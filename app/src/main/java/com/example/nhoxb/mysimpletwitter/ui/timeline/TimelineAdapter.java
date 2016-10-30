@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.nhoxb.mysimpletwitter.R;
 import com.example.nhoxb.mysimpletwitter.activity.TimelineActivity;
+import com.example.nhoxb.mysimpletwitter.model.Media;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
@@ -94,11 +95,23 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
         holder.txtName.setText(tweet.getUser().getName());
         holder.txtScreenName.setText("@" + tweet.getUser().getScreenName());
         holder.txtTime.setText(Utils.getRelativeTimeAgo(tweet.getCreatedAt()));
+        holder.txtRetweet.setText(String.valueOf(tweet.getRetweetCount()));
+        holder.txtLike.setText(String.valueOf(tweet.getUser().getFavouriteCount()));
 
         Glide.with(mContext)
                 .load(tweet.getUser().getAvatarUrl())
-                .bitmapTransform(new RoundedCornersTransformation(mContext,4,2))
+                .bitmapTransform(new RoundedCornersTransformation(mContext,8,4))
                 .into(holder.avatar);
+
+        List<Media> mediaList = tweet.getMedia();
+        if (mediaList != null && mediaList.size() > 0)
+        {
+            holder.media.setVisibility(View.VISIBLE);
+            Glide.with(mContext)
+                    .load(mediaList.get(0).getMediaUrl())
+                    .bitmapTransform(new RoundedCornersTransformation(mContext,4,2))
+                    .into(holder.media);
+        }
 
 
     }
@@ -120,6 +133,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
         @BindView(R.id.btn_item_like) ImageButton btnLike;
         @BindView(R.id.tv_count_retweet) TextView txtRetweet;
         @BindView(R.id.tv_count_like) TextView txtLike;
+        @BindView(R.id.iv_media)    ImageView media;
 
         private TwitterClient mClient;
         private int position;

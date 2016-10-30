@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:padding="8dp">
     <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
@@ -28,6 +28,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_username"
+                android:maxLength="12"
+                android:textSize="16sp"
+                android:ellipsize="end"
                 android:textColor="@android:color/primary_text_light"
                 android:textStyle="bold"
                 tools:text = "Google"/>
@@ -38,6 +41,9 @@
                 android:layout_toEndOf="@id/tv_username"
                 android:layout_marginLeft="4dp"
                 android:layout_marginStart="4dp"
+                android:textColor="@color/grey"
+                android:maxLength="12"
+                android:ellipsize="end"
                 android:id="@+id/tv_user_screenname"
                 tools:text = "\@Google"/>
             <TextView
@@ -46,6 +52,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
+                android:textColor="@color/grey"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:id="@+id/tv_time"
@@ -58,21 +65,34 @@
             android:maxLines="4"
             android:ellipsize="end"
             android:autoLink="all"
+            android:textColor="@android:color/primary_text_light"
             android:linksClickable="true"
             android:textColorLink="@color/googleBlue"
             tools:text= "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sagittis iaculis est at gravida. Nunc at metus sit amet eros vulputate dapibus a sed ligula. Nam et malesuada justo."
             android:id="@+id/tv_tweet_body"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="136dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:scaleType="fitXY"
+            android:id="@+id/iv_media"
+            tools:src="@drawable/placeholder"
+            android:visibility="gone"
+            />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <Button
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:id="@+id/btn_item_reply"
                 android:background="@drawable/reply"/>
             <Button
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_marginLeft="40dp"
                 android:layout_marginStart="40dp"
                 android:id="@+id/btn_item_retweet"
@@ -86,8 +106,9 @@
                 android:layout_height="wrap_content"
                 android:text="23"/>
             <ImageButton
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:scaleType="fitXY"
                 android:background="@android:color/transparent"
                 android:id="@+id/btn_item_like"
                 android:src="@drawable/heart_outline"
