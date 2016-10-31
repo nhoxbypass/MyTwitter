@@ -147,6 +147,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
         @BindView(R.id.tv_count_like) TextView txtLike;
         @BindView(R.id.iv_media)    ImageView media;
         @BindView(R.id.item_tweet_container) RelativeLayout container;
+        boolean isLiked = false;
 
         private TwitterClient mClient;
         private int position;
@@ -172,7 +173,20 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
             btnLike.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    btnLike.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.heart));
+                    if (!isLiked) {
+                        btnLike.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.heart));
+                        int count = Integer.parseInt(txtLike.getText().toString());
+                        txtLike.setText(String.valueOf(count + 1));
+                        isLiked = true;
+                    }
+                    else
+                    {
+                        btnLike.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.heart_outline));
+                        int count = Integer.parseInt(txtLike.getText().toString());
+                        txtLike.setText(String.valueOf(count - 1));
+                        isLiked = false;
+                    }
+
                 }
             });
 

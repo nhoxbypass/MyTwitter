@@ -165,6 +165,8 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
+                Log.v("APP","Load failed.");
+                mSwipeRefresh.setRefreshing(false);
             }
         });
     }
