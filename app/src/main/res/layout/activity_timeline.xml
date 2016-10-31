@@ -7,6 +7,7 @@
     android:id="@+id/main_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.example.nhoxb.mysimpletwitter.activity.TimelineActivity"
+    android:background="#FAFAFA"
     android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
@@ -21,7 +22,7 @@
             app:title="Trang chủ"
             android:background="@color/googleBlue"
             android:id="@+id/toolbar"
-            app:layout_scrollFlags="scroll|snap"/>
+            app:layout_scrollFlags="scroll|enterAlways"/>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout

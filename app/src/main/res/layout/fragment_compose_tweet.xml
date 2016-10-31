@@ -49,6 +49,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="-16dp"
             android:textColor="@android:color/black"
+            android:inputType="textNoSuggestions"
             android:textSize="20sp"
             android:hint="Bạn đang nghĩ gì?"
             android:ems="10"

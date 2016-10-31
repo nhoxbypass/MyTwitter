@@ -1,5 +1,6 @@
 package com.example.nhoxb.mysimpletwitter.ui.base;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.graphics.Color;
@@ -8,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,8 @@ import com.example.nhoxb.mysimpletwitter.R;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
+import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONObject;
@@ -66,6 +70,19 @@ public class TweetComposerDialogFragment extends DialogFragment
         return fragment;
     }
 
+    public static void showReplyComposer(Activity activity, String screenName, final long tweetedUid, final AsyncHttpResponseHandler handler)
+    {
+        TweetComposerDialogFragment fragment = TweetComposerDialogFragment.newInstance(screenName);
+        fragment.setStyle(DialogFragment.STYLE_NORMAL,R.style.Dialog_FullScreen);
+        fragment.show(activity.getFragmentManager(), "fragment_compose_tweet");
+        fragment.setOnTweetedListener(new TweetComposerDialogFragment.TweetComposerDialogListener() {
+            @Override
+            public void onTweeted(String body) {
+                TwitterApplication.getRestClient().updateStatus(body, String.valueOf(tweetedUid),handler);
+            }
+        });
+    }
+
     public void setOnTweetedListener(TweetComposerDialogListener onTweetedListener)
     {
         mListener = onTweetedListener;
@@ -74,7 +91,7 @@ public class TweetComposerDialogFragment extends DialogFragment
     private void setReplyMode(String screenName)
     {
         mReplyText.setText("In reply to " + screenName);
-        mInputField.setText("@" + screenName);
+        mInputField.append("@" + screenName + " ");
         mReplyContainer.setVisibility(View.VISIBLE);
     }
 
@@ -111,7 +128,7 @@ public class TweetComposerDialogFragment extends DialogFragment
         setCharsCounter(mInputField);
         //
         mInputField.requestFocus();
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
         mTweetButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,6 +158,7 @@ public class TweetComposerDialogFragment extends DialogFragment
         getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
+
     @Override
     public void onPause() {
         //Get existing layout params of window
@@ -156,6 +174,7 @@ public class TweetComposerDialogFragment extends DialogFragment
         // Call super onResume after sizing
         super.onResume();
     }
+
 
     //
     private void setCharsCounter(EditText editText)

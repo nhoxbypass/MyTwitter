@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.nhoxb.mysimpletwitter.R;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
@@ -40,6 +41,7 @@ import cz.msebera.android.httpclient.Header;
 
 public class TimelineActivity extends AppCompatActivity {
 
+    public static final String KEY_TWEET_DETAIL = "tweet_detail";
     private TwitterClient mClient;
     private Gson gson;
     @BindView(R.id.rv_list_tweet) RecyclerView mRecyclerView;
@@ -79,6 +81,16 @@ public class TimelineActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(TimelineActivity.this);
         RecyclerView.ItemDecoration decoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST);
         mRecyclerView.setLayoutManager(layoutManager);
+        mTimelineAdapter.setOnItemClickListener(new TimelineAdapter.OnItemTweetClickListener() {
+            @Override
+            public void onClick(Tweet tweet) {
+                Bundle extras = new Bundle();
+                extras.putParcelable(KEY_TWEET_DETAIL, tweet);
+                Intent intent = new Intent(TimelineActivity.this, DetailActivity.class);
+                intent.putExtras(extras);
+                startActivity(intent);
+            }
+        });
         mRecyclerView.setAdapter(mTimelineAdapter);
         mRecyclerView.addItemDecoration(decoration);
         mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
@@ -99,9 +111,8 @@ public class TimelineActivity extends AppCompatActivity {
         gson = new Gson();
 
         populateTimeline();
-
-
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -189,9 +200,9 @@ public class TimelineActivity extends AppCompatActivity {
                 mClient.updateStatus(body, "",new JsonHttpResponseHandler()
                 {
                     @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        super.onSuccess(statusCode, headers, response);
-                        Tweet tweet = gson.fromJson(response.toString(),Tweet.class);
+                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                        super.onSuccess(statusCode, headers, responseString);
+                        Tweet tweet = gson.fromJson(responseString,Tweet.class);
                         mTimelineAdapter.addTweet(tweet);
                     }
 

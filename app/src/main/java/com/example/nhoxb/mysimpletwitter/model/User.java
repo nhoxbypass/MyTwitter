@@ -1,11 +1,35 @@
 package com.example.nhoxb.mysimpletwitter.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by nhoxb on 10/29/2016.
  */
-public class User {
+public class User implements Parcelable{
+    protected User(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        avatarUrl = in.readString();
+        coverUrl = in.readString();
+        screenName = in.readString();
+        favouriteCount = in.readInt();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
     public String getAvatarUrl() {
         return avatarUrl;
     }
@@ -45,4 +69,19 @@ public class User {
     private String screenName;
     @SerializedName("favourites_count")
     private int favouriteCount;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(name);
+        parcel.writeString(avatarUrl);
+        parcel.writeString(coverUrl);
+        parcel.writeString(screenName);
+        parcel.writeInt(favouriteCount);
+    }
 }

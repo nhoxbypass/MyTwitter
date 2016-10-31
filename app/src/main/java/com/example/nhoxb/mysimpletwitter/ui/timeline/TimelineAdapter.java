@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,10 +47,21 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
 {
     List<Tweet> mTweetList;
     Context mContext;
+    private OnItemTweetClickListener mListener;
 
     public TimelineAdapter(Context context) {
         mTweetList = new ArrayList<>();
         mContext = context;
+    }
+
+    public interface OnItemTweetClickListener
+    {
+        public void onClick(Tweet tweet);
+    }
+
+    public void setOnItemClickListener(OnItemTweetClickListener listener)
+    {
+        mListener = listener;
     }
 
     public void setTweet( List<Tweet> tweetList)
@@ -96,7 +108,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
         holder.txtScreenName.setText("@" + tweet.getUser().getScreenName());
         holder.txtTime.setText(Utils.getRelativeTimeAgo(tweet.getCreatedAt()));
         holder.txtRetweet.setText(String.valueOf(tweet.getRetweetCount()));
-        holder.txtLike.setText(String.valueOf(tweet.getUser().getFavouriteCount()));
+        holder.txtLike.setText(String.valueOf(tweet.getFavouriteCount()));
 
         Glide.with(mContext)
                 .load(tweet.getUser().getAvatarUrl())
@@ -134,6 +146,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
         @BindView(R.id.tv_count_retweet) TextView txtRetweet;
         @BindView(R.id.tv_count_like) TextView txtLike;
         @BindView(R.id.iv_media)    ImageView media;
+        @BindView(R.id.item_tweet_container) RelativeLayout container;
 
         private TwitterClient mClient;
         private int position;
@@ -143,6 +156,18 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
             ButterKnife.bind(this,itemView);
 
             mClient = TwitterApplication.getRestClient();
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    position = getAdapterPosition(); // gets item position
+                    if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+                        Tweet tweet = mTweetList.get(position);
+                        // We can access the data within the views
+                        mListener.onClick(tweet);
+                    }
+                }
+            });
 
             btnLike.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -157,28 +182,21 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                     position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION)
                     {
-                        TweetComposerDialogFragment fragment = TweetComposerDialogFragment.newInstance(mTweetList.get(position).getUser().getScreenName());
-                        fragment.setStyle(DialogFragment.STYLE_NORMAL,R.style.Dialog_FullScreen);
-                        fragment.show(((Activity) mContext).getFragmentManager(), "fragment_compose_tweet");
-                        fragment.setOnTweetedListener(new TweetComposerDialogFragment.TweetComposerDialogListener() {
+                        Tweet tweet = mTweetList.get(position);
+                        TweetComposerDialogFragment.showReplyComposer((Activity)mContext, tweet.getUser().getScreenName(), tweet.getUid(), new JsonHttpResponseHandler()
+                        {
                             @Override
-                            public void onTweeted(String body) {
-                                mClient.updateStatus(body, String.valueOf(mTweetList.get(position).getUid()),new JsonHttpResponseHandler()
-                                {
-                                    @Override
-                                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                        super.onSuccess(statusCode, headers, response);
-                                        Gson gson = new Gson();
-                                        Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
-                                        addTweet(tweet);
-                                    }
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                super.onSuccess(statusCode, headers, response);
+                                Gson gson = new Gson();
+                                Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
+                                addTweet(tweet);
+                            }
 
-                                    @Override
-                                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                                        super.onFailure(statusCode, headers, responseString, throwable);
-                                        Log.e("APP", "retweet failed");
-                                    }
-                                });
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                super.onFailure(statusCode, headers, responseString, throwable);
+                                Log.e("APP", "retweet failed");
                             }
                         });
                     }
