@@ -28,6 +28,7 @@ import com.example.nhoxb.mysimpletwitter.ui.base.TweetComposerDialogFragment;
 import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -186,6 +187,7 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
+                Log.e("APP", "Load more failed");
             }
         });
     }
@@ -197,20 +199,23 @@ public class TimelineActivity extends AppCompatActivity {
         composerDialogFragment.show(getFragmentManager(),"fragment_compose_tweet");
         composerDialogFragment.setOnTweetedListener(new TweetComposerDialogFragment.TweetComposerDialogListener() {
             @Override
-            public void onTweeted(String body)
-            {
-                mClient.updateStatus(body, "",new JsonHttpResponseHandler()
+            public void onTweeted(String body) {
+                mClient.updateStatus(body, "", new JsonHttpResponseHandler()
                 {
                     @Override
-                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                        super.onSuccess(statusCode, headers, responseString);
-                        Tweet tweet = gson.fromJson(responseString,Tweet.class);
-                        mTimelineAdapter.addTweet(tweet);
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        super.onSuccess(statusCode, headers, response);
+                        Tweet tweet = gson.fromJson(response.toString(),Tweet.class);
+                        mTimelineAdapter.addTweetOnTop(tweet);
+                        mRecyclerView.scrollToPosition(0);
+                        Log.v("APP", "Tweeted timeline");
+
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                         super.onFailure(statusCode, headers, responseString, throwable);
+                        Log.e("APP", "Failed timeline");
                     }
                 });
             }

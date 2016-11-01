@@ -160,7 +160,7 @@ public class TweetComposerDialogFragment extends DialogFragment
 
 
     @Override
-    public void onPause() {
+    public void onResume() {
         //Get existing layout params of window
         ViewGroup.LayoutParams layoutParams = getDialog().getWindow().getAttributes();
 
@@ -187,8 +187,8 @@ public class TweetComposerDialogFragment extends DialogFragment
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mCharCountTextview.setText(String.valueOf(140 - count));
-                if (count > 140)
+                mCharCountTextview.setText(String.valueOf(140 - s.length()));
+                if (s.length() > 140)
                 {
                     mCharCountTextview.setTextColor(ContextCompat.getColor(mCharCountTextview.getContext(), R.color.googleRed));
                 }
@@ -197,7 +197,7 @@ public class TweetComposerDialogFragment extends DialogFragment
                     mCharCountTextview.setTextColor(Color.parseColor("#9E9E9E"));
                 }
 
-                if (count > 0 && count <= 140)
+                if (s.length() > 0 && s.length() <= 140)
                 {
                     //Limit the number of char in one tweet
                     mTweetButton.setEnabled(true);

@@ -78,11 +78,10 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
         notifyItemRangeInserted(position, tweetList.size());
     }
 
-    public void addTweet(Tweet tweet)
+    public void addTweetOnTop(Tweet tweet)
     {
-        int position = mTweetList.size();
-        mTweetList.add(tweet);
-        notifyItemRangeInserted(position, 1);
+        mTweetList.add(0,tweet);
+       notifyItemInserted(0);
     }
 
     public void clear() {
@@ -204,7 +203,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                                 super.onSuccess(statusCode, headers, response);
                                 Gson gson = new Gson();
                                 Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
-                                addTweet(tweet);
+                                addTweetOnTop(tweet);
+                                //mRecyclerView.scrollToPosition(0);
                             }
 
                             @Override
@@ -230,7 +230,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                                 super.onSuccess(statusCode, headers, response);
                                 Gson gson = new Gson();
                                 Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
-                                addTweet(tweet);
+                                addTweetOnTop(tweet);
+                                //mRecyclerView.scrollToPosition(0);
                                 Toast.makeText(btnRetweet.getContext(),"Retweeted", Toast.LENGTH_SHORT).show();
                             }
 

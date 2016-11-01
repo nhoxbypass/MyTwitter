@@ -46,6 +46,7 @@ The following **bonus** features are implemented:
 
 
 The following **additional** features are implemented:
+* [x] User can click retweet icon on timeline or on Tweet detail view to Retweet
 * [x] Apply the popular Butterknife annotation library to reduce view boilerplate.
 
 * [ ] List anything else that you can get done to improve the app functionality!
