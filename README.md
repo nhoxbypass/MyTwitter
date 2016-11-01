@@ -2,7 +2,7 @@
 
 **My Tweet** is an awesome android app that allows a user to view his Twitter timeline and post a new tweet. The app utilizes [Twitter REST API](https://dev.twitter.com/rest/public).
 
-Time spent: **15** hours spent in total
+Time spent: **17** hours spent in total
 
 ## User Stories
 
@@ -46,6 +46,7 @@ The following **bonus** features are implemented:
 
 
 The following **additional** features are implemented:
+* [x] User can click on favourite button to like/unlike a tweet
 * [x] User can click retweet icon on timeline or on Tweet detail view to Retweet
 * [x] Apply the popular Butterknife annotation library to reduce view boilerplate.
 
@@ -55,7 +56,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/Has7D9e.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://i.imgur.com/4x9oZVl.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 
 ## Notes
