@@ -117,6 +117,10 @@ public class DetailActivity extends AppCompatActivity {
                         .into(media);
                 media.setVisibility(View.VISIBLE);
             }
+
+            //Set icon
+            setButtonIcons(mCurrTweet);
+
         }
         else
         {
@@ -232,6 +236,23 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void setButtonIcons(Tweet currTweet)
+    {
+        if (currTweet.isRetweeted())
+        {
+            btnRetweet.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this, R.drawable.retweeted));
+        }
+        else
+            btnRetweet.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this, R.drawable.unretweet));
+
+        if (currTweet.isFavourited())
+        {
+            btnLike.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this,R.drawable.heart));
+        }
+        else
+            btnLike.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this,R.drawable.heart_outline));
     }
 
     @Override
