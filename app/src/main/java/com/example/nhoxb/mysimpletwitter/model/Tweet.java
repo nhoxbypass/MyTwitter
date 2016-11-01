@@ -113,6 +113,19 @@ public class Tweet implements Parcelable{
             return "google.com";
     }
 
+    public void setRetweet(boolean isRetweeted)
+    {
+        if (isRetweeted)
+        {
+            retweetCount++;
+            retweeted = true;
+        }
+        else
+        {
+            retweetCount--;
+            retweeted = false;
+        }
+    }
 
 
     @Override

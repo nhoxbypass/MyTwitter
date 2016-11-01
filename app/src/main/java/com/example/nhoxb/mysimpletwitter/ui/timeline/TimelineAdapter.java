@@ -289,7 +289,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                                     Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
                                     addTweetOnTop(tweet);
                                     //mRecyclerView.scrollToPosition(0);
-                                    txtRetweet.setText(String.valueOf(mCurrTweet.getRetweetCount() + 1));
+                                    mCurrTweet.setRetweet(true);
+                                    txtRetweet.setText(String.valueOf(mCurrTweet.getRetweetCount()));
                                 }
                             });
                         }
@@ -309,9 +310,10 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                                     btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.unretweet));
 
                                     //Set new
-                                    Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
-                                    mTweetList.set(position,tweet);
-                                    txtRetweet.setText(String.valueOf(mCurrTweet.getRetweetCount() - 1));
+                                    //Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
+                                    //mTweetList.set(position,tweet);
+                                    mCurrTweet.setRetweet(false);
+                                    txtRetweet.setText(String.valueOf(mCurrTweet.getRetweetCount()));
                                 }
                             });
                         }

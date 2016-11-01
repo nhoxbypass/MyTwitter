@@ -46,7 +46,7 @@
                 android:layout_marginLeft="4dp"
                 android:layout_marginStart="4dp"
                 android:textColor="@color/grey"
-                android:maxLength="11"
+                android:maxLength="10"
                 android:ellipsize="end"
                 android:id="@+id/tv_user_screenname"
                 tools:text = "\@Google"/>
@@ -92,6 +92,7 @@
             <ImageButton
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:scaleType="fitXY"
                 android:id="@+id/btn_item_reply"
                 android:src="@drawable/reply"
                 android:background="@android:color/transparent"/>

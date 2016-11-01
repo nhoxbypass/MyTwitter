@@ -155,6 +155,8 @@ public class DetailActivity extends AppCompatActivity {
                             super.onSuccess(statusCode, headers, response);
                             Toast.makeText(btnRetweet.getContext(),"Đã tweet lại", Toast.LENGTH_SHORT).show();
                             btnRetweet.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this,R.drawable.retweeted));
+                            mCurrTweet.setRetweet(true);
+                            txtRetweetCount.setText(String.valueOf(mCurrTweet.getRetweetCount()));
                             //mCurrTweet = mGson.fromJson(response.toString(), Tweet.class);
                         }
 
@@ -173,6 +175,8 @@ public class DetailActivity extends AppCompatActivity {
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             super.onSuccess(statusCode, headers, response);
                             btnRetweet.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this,R.drawable.unretweet));
+                            mCurrTweet.setRetweet(false);
+                            txtRetweetCount.setText(String.valueOf(mCurrTweet.getRetweetCount()));
                             //mCurrTweet = mGson.fromJson(responseString, Tweet.class);
 
                         }
@@ -200,7 +204,7 @@ public class DetailActivity extends AppCompatActivity {
                             btnLike.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this, R.drawable.heart));
                             mCurrTweet = mGson.fromJson(response.toString(), Tweet.class);
                             //mTweetList.set(position, tweet);
-                            //txtLike.setText(String.valueOf(tweet.getFavouriteCount()));
+                            txtLikeCount.setText(String.valueOf(mCurrTweet.getFavouriteCount()));
 
                         }
                     });
@@ -212,7 +216,7 @@ public class DetailActivity extends AppCompatActivity {
                             btnLike.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this, R.drawable.heart_outline));
                             mCurrTweet = mGson.fromJson(response.toString(), Tweet.class);
                             //mTweetList.set(position, tweet);
-                            //txtLike.setText(String.valueOf(tweet.getFavouriteCount()));
+                            txtLikeCount.setText(String.valueOf(mCurrTweet.getFavouriteCount()));
 
                         }
                     });
