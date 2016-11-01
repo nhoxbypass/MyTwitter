@@ -168,7 +168,7 @@
                     android:layout_height="32dp"
                     android:layout_marginLeft="48dp"
                     android:layout_marginStart="48dp"
-                    android:src="@drawable/retweet"
+                    android:src="@drawable/unretweet"
                     android:background="@android:color/transparent"
                     android:scaleType="centerInside"
                     android:id="@+id/btn_detail_retweet"/>

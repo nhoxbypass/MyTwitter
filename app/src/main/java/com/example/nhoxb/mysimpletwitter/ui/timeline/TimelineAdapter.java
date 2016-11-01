@@ -28,6 +28,7 @@ import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
 import com.example.nhoxb.mysimpletwitter.ui.base.TweetComposerDialogFragment;
 import com.example.nhoxb.mysimpletwitter.utils.Utils;
 import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONObject;
@@ -48,10 +49,14 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
     List<Tweet> mTweetList;
     Context mContext;
     private OnItemTweetClickListener mListener;
+    private TwitterClient mClient;
+    private Gson mGson;
 
     public TimelineAdapter(Context context) {
         mTweetList = new ArrayList<>();
         mContext = context;
+        mClient = TwitterApplication.getRestClient();
+        mGson = new Gson();
     }
 
     public interface OnItemTweetClickListener
@@ -124,6 +129,22 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                     .into(holder.media);
         }
 
+        setupIcon(tweet, holder);
+
+
+    }
+
+    private void setupIcon(Tweet tweet, TimelineViewHolder viewholder)
+    {
+        if (tweet.isRetweeted())
+            viewholder.btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.retweeted));
+        else
+            viewholder.btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.unretweet));
+
+        if (tweet.isFavourited())
+            viewholder.btnLike.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.heart));
+        else
+            viewholder.btnLike.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.heart_outline));
 
     }
 
@@ -139,23 +160,21 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
         @BindView(R.id.tv_user_screenname) TextView txtScreenName;
         @BindView(R.id.tv_tweet_body) TextView txtBody;
         @BindView(R.id.tv_time) TextView txtTime;
-        @BindView(R.id.btn_item_reply) Button  btnReply;
-        @BindView(R.id.btn_item_retweet) Button btnRetweet;
+        @BindView(R.id.btn_item_reply) ImageButton  btnReply;
+        @BindView(R.id.btn_item_retweet) ImageButton btnRetweet;
         @BindView(R.id.btn_item_like) ImageButton btnLike;
         @BindView(R.id.tv_count_retweet) TextView txtRetweet;
         @BindView(R.id.tv_count_like) TextView txtLike;
         @BindView(R.id.iv_media)    ImageView media;
         @BindView(R.id.item_tweet_container) RelativeLayout container;
-        boolean isLiked = false;
 
-        private TwitterClient mClient;
         private int position;
 
-        public TimelineViewHolder(View itemView) {
+        public TimelineViewHolder(final View itemView) {
             super(itemView);
             ButterKnife.bind(this,itemView);
 
-            mClient = TwitterApplication.getRestClient();
+
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -172,18 +191,40 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
             btnLike.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (!isLiked) {
-                        btnLike.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.heart));
-                        int count = Integer.parseInt(txtLike.getText().toString());
-                        txtLike.setText(String.valueOf(count + 1));
-                        isLiked = true;
-                    }
-                    else
+                    position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION)
                     {
-                        btnLike.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.heart_outline));
-                        int count = Integer.parseInt(txtLike.getText().toString());
-                        txtLike.setText(String.valueOf(count - 1));
-                        isLiked = false;
+                        final Tweet mCurrTweet = mTweetList.get(position);
+                        if (!mCurrTweet.isFavourited()) {
+                            mClient.favouriteStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler()
+                            {
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                    super.onSuccess(statusCode, headers, response);
+                                    btnLike.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.heart));
+                                    Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
+                                    mTweetList.set(position, tweet);
+                                    txtLike.setText(String.valueOf(tweet.getFavouriteCount()));
+
+                                }
+                            });
+                        }
+                        else
+                        {
+                            mClient.unFavouriteStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler()
+                            {
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response)
+                                {
+                                    super.onSuccess(statusCode, headers, response);
+                                    btnLike.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.heart_outline));
+                                    Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
+                                    mTweetList.set(position, tweet);
+                                    txtLike.setText(String.valueOf(tweet.getFavouriteCount()));
+                                }
+                            });
+
+                        }
                     }
 
                 }
@@ -210,13 +251,14 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                                 super.onFailure(statusCode, headers, responseString, throwable);
-                                Log.e("APP", "retweet failed");
+                                Log.e("APP", "reply failed");
                             }
                         });
                     }
                 }
             });
 
+            //Retweet
             btnRetweet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view)
@@ -224,23 +266,55 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                     position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION)
                     { // Check if an item was deleted, but the user clicked it before the UI removed it
-                        mClient.retweetStatus(mTweetList.get(position).getUid(), new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                super.onSuccess(statusCode, headers, response);
-                                Gson gson = new Gson();
-                                Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
-                                addTweetOnTop(tweet);
-                                //mRecyclerView.scrollToPosition(0);
-                                Toast.makeText(btnRetweet.getContext(),"Retweeted", Toast.LENGTH_SHORT).show();
-                            }
+                        final Tweet mCurrTweet = mTweetList.get(position);
 
-                            @Override
-                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                                super.onFailure(statusCode, headers, responseString, throwable);
-                                Log.e("APP", "retweet failed");
-                            }
-                        });
+                        if (!mCurrTweet.isRetweeted())
+                        {
+                            mClient.retweetStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler()
+                            {
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                    super.onFailure(statusCode, headers, responseString, throwable);
+                                    Log.e("APP", "unretweet failed");
+                                }
+
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response)
+                                {
+                                    super.onSuccess(statusCode, headers, response);
+                                    Toast.makeText(btnRetweet.getContext(),"Đã tweet lại", Toast.LENGTH_SHORT).show();
+                                    btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.retweeted));
+
+                                    //Set new
+                                    Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
+                                    addTweetOnTop(tweet);
+                                    //mRecyclerView.scrollToPosition(0);
+                                    txtRetweet.setText(String.valueOf(mCurrTweet.getRetweetCount() + 1));
+                                }
+                            });
+                        }
+                        else
+                        {
+                            mClient.unRetweetStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler()
+                            {
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                    super.onFailure(statusCode, headers, responseString, throwable);
+                                    Log.e("APP", "unretweet failed");
+                                }
+
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                    super.onSuccess(statusCode, headers, response);
+                                    btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.unretweet));
+
+                                    //Set new
+                                    Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
+                                    mTweetList.set(position,tweet);
+                                    txtRetweet.setText(String.valueOf(mCurrTweet.getRetweetCount() - 1));
+                                }
+                            });
+                        }
                     }
                 }
             });

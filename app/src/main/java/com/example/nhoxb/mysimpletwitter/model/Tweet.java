@@ -24,6 +24,8 @@ public class Tweet implements Parcelable{
         createdAt = in.readString();
         retweetCount = in.readInt();
         favouriteCount = in.readInt();
+        retweeted = in.readByte() != 0;
+        favourited = in.readByte() != 0;
         entities = gson.fromJson(in.readString(), JsonObject.class);
         mediaList = in.createTypedArrayList(Media.CREATOR);
     }
@@ -85,10 +87,23 @@ public class Tweet implements Parcelable{
     private int favouriteCount;
     @SerializedName("entities")
     private  JsonObject entities;
+
+    @SerializedName("retweeted")
+    private boolean retweeted;
+    @SerializedName("favorited")
+    private boolean favourited;
+
+    //
     private List<Media> mediaList;
     private String url;
 
+    public boolean isRetweeted() {
+        return retweeted;
+    }
 
+    public boolean isFavourited() {
+        return favourited;
+    }
     public String getUrl() {
         JsonArray array = entities.getAsJsonArray("urls");
 
@@ -113,6 +128,8 @@ public class Tweet implements Parcelable{
         parcel.writeString(createdAt);
         parcel.writeInt(retweetCount);
         parcel.writeInt(favouriteCount);
+        parcel.writeByte((byte) (retweeted ? 1 : 0));
+        parcel.writeByte((byte) (favourited ? 1 : 0));
         parcel.writeString(entities.toString());
         parcel.writeTypedList(mediaList);
     }

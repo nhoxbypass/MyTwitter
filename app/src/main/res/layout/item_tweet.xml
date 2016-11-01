@@ -89,18 +89,20 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <Button
+            <ImageButton
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:id="@+id/btn_item_reply"
-                android:background="@drawable/reply"/>
-            <Button
+                android:src="@drawable/reply"
+                android:background="@android:color/transparent"/>
+            <ImageButton
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_marginLeft="40dp"
                 android:layout_marginStart="40dp"
                 android:id="@+id/btn_item_retweet"
-                android:background="@drawable/retweet"
+                android:src="@drawable/unretweet"
+                android:background="@android:color/transparent"
                 />
             <TextView
                 android:layout_width="wrap_content"

@@ -27,10 +27,14 @@ import com.bumptech.glide.Glide;
 import com.example.nhoxb.mysimpletwitter.R;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
+import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
 import com.example.nhoxb.mysimpletwitter.ui.base.TweetComposerDialogFragment;
 import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineAdapter;
 import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+
 
 import org.json.JSONObject;
 import org.w3c.dom.Text;
@@ -58,6 +62,8 @@ public class DetailActivity extends AppCompatActivity {
     @BindView(R.id.btn_detail_share) ImageButton btnShare;
     @BindView(R.id.toolbar)  Toolbar mToolbar;
     ShareActionProvider mShare;
+    TwitterClient mClient;
+    Gson mGson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +80,8 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        mClient = TwitterApplication.getRestClient();
+        mGson = new Gson();
 
         mToolbar.setTitle("Tweet");
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -130,7 +138,7 @@ public class DetailActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                         super.onFailure(statusCode, headers, responseString, throwable);
-                        Log.e("APP", "retweet failed");
+                        Log.e("APP", "unretweet failed");
                     }
                 });
             }
@@ -139,19 +147,77 @@ public class DetailActivity extends AppCompatActivity {
         btnRetweet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TwitterApplication.getRestClient().retweetStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        super.onSuccess(statusCode, headers, response);
-                        Toast.makeText(btnRetweet.getContext(),"Retweeted", Toast.LENGTH_SHORT).show();
-                    }
+                if (!mCurrTweet.isRetweeted())
+                {
+                    mClient.retweetStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            super.onSuccess(statusCode, headers, response);
+                            Toast.makeText(btnRetweet.getContext(),"Đã tweet lại", Toast.LENGTH_SHORT).show();
+                            btnRetweet.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this,R.drawable.retweeted));
+                            //mCurrTweet = mGson.fromJson(response.toString(), Tweet.class);
+                        }
 
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                        super.onFailure(statusCode, headers, responseString, throwable);
-                        Log.e("APP", "retweet failed");
-                    }
-                });
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            super.onFailure(statusCode, headers, responseString, throwable);
+                            Log.e("APP", "retweet failed");
+                        }
+                    });
+                }
+                else
+                {
+                    mClient.unRetweetStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler() {
+
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            super.onSuccess(statusCode, headers, response);
+                            btnRetweet.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this,R.drawable.unretweet));
+                            //mCurrTweet = mGson.fromJson(responseString, Tweet.class);
+
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            super.onFailure(statusCode, headers, responseString, throwable);
+                            Log.e("APP", "unretweet failed");
+                        }
+                    });
+                }
+
+            }
+        });
+
+        btnLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                if (!mCurrTweet.isFavourited()) {
+                    mClient.favouriteStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            super.onSuccess(statusCode, headers, response);
+                            btnLike.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this, R.drawable.heart));
+                            mCurrTweet = mGson.fromJson(response.toString(), Tweet.class);
+                            //mTweetList.set(position, tweet);
+                            //txtLike.setText(String.valueOf(tweet.getFavouriteCount()));
+
+                        }
+                    });
+                } else {
+                    mClient.unFavouriteStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            super.onSuccess(statusCode, headers, response);
+                            btnLike.setImageDrawable(ContextCompat.getDrawable(DetailActivity.this, R.drawable.heart_outline));
+                            mCurrTweet = mGson.fromJson(response.toString(), Tweet.class);
+                            //mTweetList.set(position, tweet);
+                            //txtLike.setText(String.valueOf(tweet.getFavouriteCount()));
+
+                        }
+                    });
+
+                }
             }
         });
 
