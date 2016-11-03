@@ -8,14 +8,18 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Created by nhoxb on 10/29/2016.
  */
-public class User implements Parcelable{
+public class User implements Parcelable {
+
     protected User(Parcel in) {
         id = in.readString();
         name = in.readString();
+        screenName = in.readString();
+        followerCount = in.readInt();
+        friendCount = in.readInt();
+        favouriteCount = in.readInt();
+        statusCount = in.readInt();
         avatarUrl = in.readString();
         coverUrl = in.readString();
-        screenName = in.readString();
-        favouriteCount = in.readInt();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -43,7 +47,6 @@ public class User implements Parcelable{
     }
 
 
-
     public String getName() {
         return name;
     }
@@ -61,14 +64,33 @@ public class User implements Parcelable{
     private String id;
     @SerializedName("name")
     private String name;
+    @SerializedName("screen_name")
+    private String screenName;
+
+    public int getFollowerCount() {
+        return followerCount;
+    }
+
+    public int getFriendCount() {
+        return friendCount;
+    }
+
+    public int getStatusCount() {
+        return statusCount;
+    }
+
+    @SerializedName("followers_count")
+    private int followerCount;
+    @SerializedName("friends_count")
+    private int friendCount;
+    @SerializedName("favourites_count")
+    private int favouriteCount;
+    @SerializedName("statuses_count")
+    private int statusCount;
     @SerializedName("profile_image_url")
     private String avatarUrl;
     @SerializedName("profile_background_image_url")
     private String coverUrl;
-    @SerializedName("screen_name")
-    private String screenName;
-    @SerializedName("favourites_count")
-    private int favouriteCount;
 
     @Override
     public int describeContents() {
@@ -79,9 +101,12 @@ public class User implements Parcelable{
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(id);
         parcel.writeString(name);
+        parcel.writeString(screenName);
+        parcel.writeInt(followerCount);
+        parcel.writeInt(friendCount);
+        parcel.writeInt(favouriteCount);
+        parcel.writeInt(statusCount);
         parcel.writeString(avatarUrl);
         parcel.writeString(coverUrl);
-        parcel.writeString(screenName);
-        parcel.writeInt(favouriteCount);
     }
 }

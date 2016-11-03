@@ -49,6 +49,25 @@ The following **additional** features are implemented:
 * [x] User can click on favourite button to like/unlike a tweet
 * [x] User can click retweet icon on timeline or on Tweet detail view to Retweet
 * [x] Apply the popular Butterknife annotation library to reduce view boilerplate.
+* [x] User can **switch between Timeline and Mention views using tabs**
+  * [x] User can view their home timeline tweets.
+  * [ ] User can view the recent mentions of their username.
+* [x] User can navigate to **view their own profile**
+  * [ ] User can see picture, tagline, # of followers, # of following, and tweets on their profile.
+* [ ] User can **click on the profile image** in any tweet to see **another user's** profile.
+ * [ ] User can see picture, tagline, # of followers, # of following, and tweets of clicked user.
+ * [ ] Profile view includes that user's timeline
+* [x] User can [infinitely paginate](http://guides.codepath.com/android/Endless-Scrolling-with-AdapterViews-and-RecyclerView) any of these timelines (home, mentions, user) by scrolling to the bottom
+* [ ] User can view following / followers list through the profile
+* [ ] Implements robust error handling, [check if internet is available](http://guides.codepath.com/android/Sending-and-Managing-Network-Requests#checking-for-network-connectivity), handle error cases, network failures
+* [ ] When a network request is sent, user sees an [indeterminate progress indicator](http://guides.codepath.com/android/Handling-ProgressBars#progress-within-actionbar)
+* [x] User can **"reply" to any tweet on their home timeline**
+  * [x] The user that wrote the original tweet is automatically "@" replied in compose
+* [ ] Improve the user interface and theme the app to feel twitter branded
+* [ ] User can **search for tweets matching a particular query** and see results
+* [ ] Usernames and hashtags are styled and clickable within tweets [using clickable spans](http://guides.codepath.com/android/Working-with-the-TextView#creating-clickable-styled-spans)
+* [x] On the profile screen, leverage the [CoordinatorLayout](http://guides.codepath.com/android/Handling-Scrolls-with-CoordinatorLayout#responding-to-scroll-events) to [apply scrolling behavior](https://hackmd.io/s/SJyDOCgU) as the user scrolls through the profile timeline.
+* [ ] User can view their direct messages (or send new ones)
 
 * [ ] List anything else that you can get done to improve the app functionality!
 

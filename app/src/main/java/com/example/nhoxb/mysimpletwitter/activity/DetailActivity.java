@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.nhoxb.mysimpletwitter.R;
+import com.example.nhoxb.mysimpletwitter.TimelineFragment;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
@@ -91,7 +92,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-        mCurrTweet = getIntent().getExtras().getParcelable(TimelineActivity.KEY_TWEET_DETAIL);
+        mCurrTweet = getIntent().getExtras().getParcelable(TimelineFragment.KEY_TWEET_DETAIL);
 
         if (mCurrTweet != null)
         {

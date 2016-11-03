@@ -6,13 +6,8 @@
     android:background="#FAFAFA"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <android.support.v7.widget.Toolbar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        app:titleTextColor="@android:color/white"
-        app:title="Trang chủ"
-        android:background="@color/googleBlue"
+    <include
+        layout="@layout/toolbar"
         android:id="@+id/toolbar"/>
     <ScrollView
         android:layout_width="match_parent"
