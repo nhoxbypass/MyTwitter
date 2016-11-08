@@ -1,4 +1,4 @@
-package com.example.nhoxb.mysimpletwitter;
+package com.example.nhoxb.mysimpletwitter.ui.timeline;
 
 
 import android.content.Context;
@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.nhoxb.mysimpletwitter.R;
 import com.example.nhoxb.mysimpletwitter.activity.DetailActivity;
 import com.example.nhoxb.mysimpletwitter.activity.TimelineActivity;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
@@ -20,7 +21,6 @@ import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
 import com.example.nhoxb.mysimpletwitter.ui.base.DividerItemDecoration;
 import com.example.nhoxb.mysimpletwitter.ui.base.EndlessRecyclerViewScrollListener;
-import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -33,8 +33,6 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
 
@@ -108,7 +106,7 @@ public class TimelineFragment extends Fragment {
         mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadMoreTweet(page);
+                loadMoreTweet(mType,page);
             }
         });
 
@@ -135,7 +133,7 @@ public class TimelineFragment extends Fragment {
 
     private void populateHomeTimeline()
     {
-        mClient.getHomeTimeline(new JsonHttpResponseHandler()
+        mClient.getHomeTimeline(1, new JsonHttpResponseHandler()
         {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -158,10 +156,10 @@ public class TimelineFragment extends Fragment {
 
     private void populateMentionTimeline()
     {
-        mClient.getMentionTimeline(25, new JsonHttpResponseHandler()
+        mClient.getMentionTimeline(1, new JsonHttpResponseHandler()
         {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 super.onSuccess(statusCode, headers, response);
                 Log.v("APP","Load mention success.");
                 List<Tweet> mTweetList = mGson.fromJson(response.toString(), new TypeToken<List<Tweet>>(){}.getType() );
@@ -178,24 +176,34 @@ public class TimelineFragment extends Fragment {
         });
     }
 
-    private void loadMoreTweet(final int page)
+    private void loadMoreTweet(final int type, final int page)
     {
-        mClient.getHomeTimeline(page, new JsonHttpResponseHandler()
+        JsonHttpResponseHandler handler = new JsonHttpResponseHandler()
         {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 super.onSuccess(statusCode, headers, response);
-                Log.v("APP","Load success. Page: " + page);
+                Log.v("APP","Load success. Type: " + type + " Page: " + page);
                 List<Tweet> mTweetList = mGson.fromJson(response.toString(), new TypeToken<List<Tweet>>(){}.getType() );
                 mTimelineAdapter.addTweet(mTweetList);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                Log.e("APP", "Load more failed");
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                Log.e("APP", "Load more failed: Type: " + type);
             }
-        });
+        };
+        switch (type)
+        {
+            case HOME_TIMELINE:
+                mClient.getHomeTimeline(page, handler);
+                break;
+
+            case MENTIONS_TIMELINE:
+                mClient.getMentionTimeline(page,handler);
+                break;
+        }
     }
 
     @Override
@@ -215,7 +223,7 @@ public class TimelineFragment extends Fragment {
     {
         if (event.isPullToRefresh)
         {
-            populateHomeTimeline();
+            loadTweets(mType);
         }
 
         if (event.isAddTweetToTop)

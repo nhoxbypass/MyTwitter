@@ -17,15 +17,15 @@
         <include
             layout="@layout/toolbar"
             android:id="@+id/toolbar"
-            app:layout_scrollFlags="scroll|enterAlways"/>
+            />
         <android.support.design.widget.TabLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
             app:tabTextColor="@color/grey"
             android:background="@color/googleBlue"
             app:tabIndicatorColor="@android:color/white"
             app:tabSelectedTextColor="@android:color/white"
+            android:fitsSystemWindows="true"
             android:id="@+id/tablayout" />
     </android.support.design.widget.AppBarLayout>
 
@@ -48,9 +48,9 @@
         android:layout_margin="16dp"
         android:src="@drawable/compose"
         app:fabSize="normal"
-        app:layout_anchor="@id/swipe_refresh"
-        app:layout_anchorGravity="bottom|right|end"
         app:backgroundTint="@color/googleBlue"
+        app:layout_anchorGravity="bottom|right|end"
+        app:layout_anchor="@id/swipe_refresh"
         android:id="@+id/fab_compose"/>
 
 </android.support.design.widget.CoordinatorLayout>

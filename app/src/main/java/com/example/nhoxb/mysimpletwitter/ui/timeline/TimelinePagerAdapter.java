@@ -1,11 +1,11 @@
-package com.example.nhoxb.mysimpletwitter.ui.base;
+package com.example.nhoxb.mysimpletwitter.ui.timeline;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.nhoxb.mysimpletwitter.TimelineFragment;
+import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineFragment;
 
 /**
  * Created by nhoxb on 11/2/2016.

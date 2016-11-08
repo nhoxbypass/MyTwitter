@@ -1,6 +1,7 @@
 package com.example.nhoxb.mysimpletwitter.activity;
 
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -25,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,12 +34,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.nhoxb.mysimpletwitter.R;
-import com.example.nhoxb.mysimpletwitter.TimelineFragment;
+import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineFragment;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
 import com.example.nhoxb.mysimpletwitter.model.User;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
-import com.example.nhoxb.mysimpletwitter.ui.base.TimelinePagerAdapter;
+import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelinePagerAdapter;
 import com.example.nhoxb.mysimpletwitter.ui.base.TweetComposerDialogFragment;
 import com.google.gson.Gson;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -49,8 +49,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
-import java.sql.Time;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
@@ -58,6 +56,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class TimelineActivity extends AppCompatActivity {
 
+    public static final String KEY_PROFILE = "profile";
     private TwitterClient mClient;
     private Gson mGson;
     private TimelinePagerAdapter pagerAdapter;
@@ -103,7 +102,6 @@ public class TimelineActivity extends AppCompatActivity {
 
         // Tie DrawerLayout events to the ActionBarToggle
         mDrawerLayout.addDrawerListener(mDrawerToggle);
-
 
         //
         pagerAdapter = new TimelinePagerAdapter(getSupportFragmentManager(), TimelineActivity.this);
@@ -153,6 +151,16 @@ public class TimelineActivity extends AppCompatActivity {
 
         //get user
         getUserCredential();
+        mNavHeaderAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(TimelineActivity.this, ProfileActivity.class);
+                Bundle extras = new Bundle();
+                extras.putParcelable(TimelineActivity.KEY_PROFILE, mUser);
+                intent.putExtras(extras);
+                startActivity(intent);
+            }
+        });
 
     }
 

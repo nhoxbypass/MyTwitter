@@ -8,6 +8,7 @@ import android.content.Context;
 
 import com.codepath.oauth.OAuthBaseClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 /*
@@ -69,6 +70,7 @@ public class TwitterClient extends OAuthBaseClient {
 		getClient().get(apiUrl, params, handler);
 	}
 
+    /*
 	public void getHomeTimeline(AsyncHttpResponseHandler handler) {
 		String apiUrl = getApiUrl("statuses/home_timeline.json");
 		RequestParams params = new RequestParams();
@@ -76,13 +78,39 @@ public class TwitterClient extends OAuthBaseClient {
         params.put("since_id", "1");
 		getClient().get(apiUrl, params, handler);
 	}
+	*/
 
-	public void getMentionTimeline(int count, AsyncHttpResponseHandler handler) {
+	public void getMentionTimeline(int page, AsyncHttpResponseHandler handler) {
 		String apiUrl = getApiUrl("statuses/mentions_timeline.json");
 		RequestParams params = new RequestParams();
-        params.put("count", "25");
+        params.put("page", String.valueOf(page));
+        params.put("since_id", "1");
 		getClient().get(apiUrl, params, handler);
 	}
+
+	public void getUserRetweet(int count, AsyncHttpResponseHandler handler)
+	{
+        String apiUrl = getApiUrl("statuses/retweets_of_me.json");
+        RequestParams params = new RequestParams();
+        params.put("count",String.valueOf(count));
+        getClient().get(apiUrl, params, handler);
+	}
+
+	public void getUserFavourite(int count, AsyncHttpResponseHandler handler)
+    {
+        String apiUrl = getApiUrl("favorites/list.json");
+        RequestParams params = new RequestParams();
+        params.put("count", String.valueOf(count));
+        getClient().get(apiUrl, params, handler);
+    }
+
+    public void getUserTimeline(int count, AsyncHttpResponseHandler handler)
+    {
+        String apiUrl = getApiUrl("statuses/user_timeline.json");
+        RequestParams params = new RequestParams();
+        params.put("count",String.valueOf(count));
+        getClient().get(apiUrl, params, handler);
+    }
 
 
     public void updateStatus(String body, String id,AsyncHttpResponseHandler handler)
