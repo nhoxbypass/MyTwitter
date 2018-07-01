@@ -8,5 +8,5 @@
     <color name="googleGreen">#3cba54</color>
     <color name="googleBlue">#4885ed</color>
     <color name="googleYellow">#f4c20d</color>
-    <color name="grey">#9E9E9E</color>
+    <color name="material_grey_500">#9E9E9E</color>
 </resources>

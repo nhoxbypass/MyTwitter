@@ -1,17 +1,13 @@
 package com.example.nhoxb.mysimpletwitter.ui.timeline;
 
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.content.Context;
-import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -19,8 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.nhoxb.mysimpletwitter.R;
-import com.example.nhoxb.mysimpletwitter.activity.TimelineActivity;
 import com.example.nhoxb.mysimpletwitter.model.Media;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
@@ -28,7 +24,6 @@ import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
 import com.example.nhoxb.mysimpletwitter.ui.base.TweetComposerDialogFragment;
 import com.example.nhoxb.mysimpletwitter.utils.Utils;
 import com.google.gson.Gson;
-import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONObject;
@@ -116,7 +111,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
 
         Glide.with(mContext)
                 .load(tweet.getUser().getAvatarUrl())
-                .bitmapTransform(new RoundedCornersTransformation(mContext,8,4))
+                .apply(new RequestOptions().transform(new RoundedCornersTransformation(4, 8, RoundedCornersTransformation.CornerType.ALL)))
                 .into(holder.avatar);
 
         List<Media> mediaList = tweet.getMedia();
@@ -125,7 +120,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
             holder.media.setVisibility(View.VISIBLE);
             Glide.with(mContext)
                     .load(mediaList.get(0).getMediaUrl())
-                    .bitmapTransform(new RoundedCornersTransformation(mContext,4,2))
+                    .apply(new RequestOptions().transform(new RoundedCornersTransformation(2, 8, RoundedCornersTransformation.CornerType.ALL)))
                     .into(holder.media);
         }
 

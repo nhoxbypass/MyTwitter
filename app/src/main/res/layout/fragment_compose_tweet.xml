@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="match_parent">
     <Button
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -21,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_margin="4dp"
-            android:background="@color/grey"/>
+            android:background="@color/material_grey_500" />
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -35,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="40dp"
-            android:textColor="@color/grey"
+            android:textColor="@color/material_grey_500"
             android:id="@+id/tv_reply"
             android:layout_centerVertical="true"
             android:text="In reply to GeniusQ"/>
@@ -71,7 +69,7 @@
             android:padding="8dp"
             android:layout_gravity="center_vertical|end|right"
             android:gravity="end"
-            android:textColor="@color/grey"
+            android:textColor="@color/material_grey_500"
             android:text="140"
             android:id="@+id/tv_count_char"/>
         <Button
@@ -91,7 +89,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_above="@id/footer_container"
-        android:background="@color/grey"/>
+        android:background="@color/material_grey_500" />
 
 
 

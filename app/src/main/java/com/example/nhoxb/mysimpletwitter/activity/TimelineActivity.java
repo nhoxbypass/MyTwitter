@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -18,7 +19,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -31,16 +31,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.nhoxb.mysimpletwitter.R;
-import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineFragment;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
 import com.example.nhoxb.mysimpletwitter.model.User;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
-import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelinePagerAdapter;
 import com.example.nhoxb.mysimpletwitter.ui.base.TweetComposerDialogFragment;
+import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineFragment;
+import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelinePagerAdapter;
 import com.google.gson.Gson;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -174,11 +175,11 @@ public class TimelineActivity extends AppCompatActivity {
                 Log.v("APP TWEET", "Get user credential success");
 
                 Glide.with(TimelineActivity.this)
-                        .load(mUser.getCoverUrl())
                         .asBitmap()
+                        .load(mUser.getCoverUrl())
                         .into(new SimpleTarget<Bitmap>() {
                             @Override
-                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> glideAnimation) {
                                 Drawable drawable = new BitmapDrawable(TimelineActivity.this.getResources(),resource);
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
                                 {
@@ -191,7 +192,7 @@ public class TimelineActivity extends AppCompatActivity {
                 mNavHeaderScreenName.setText(mUser.getScreenName());
                 Glide.with(TimelineActivity.this)
                         .load(mUser.getAvatarUrl())
-                        .bitmapTransform(new CropCircleTransformation(TimelineActivity.this))
+                        .apply(new RequestOptions().transform(new CropCircleTransformation()))
                         .into(mNavHeaderAvatar);
             }
 

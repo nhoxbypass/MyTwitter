@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,15 +20,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.nhoxb.mysimpletwitter.R;
-import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineFragment;
 import com.example.nhoxb.mysimpletwitter.model.Tweet;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
 import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
 import com.example.nhoxb.mysimpletwitter.ui.base.TweetComposerDialogFragment;
+import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineFragment;
 import com.google.gson.Gson;
 import com.loopj.android.http.JsonHttpResponseHandler;
-
 
 import org.json.JSONObject;
 
@@ -90,7 +90,7 @@ public class DetailActivity extends AppCompatActivity {
         {
             Glide.with(this)
                     .load(mCurrTweet.getUser().getAvatarUrl())
-                    .bitmapTransform(new RoundedCornersTransformation(this, 4, 2))
+                    .apply(new RequestOptions().transform(new RoundedCornersTransformation(2, 4, RoundedCornersTransformation.CornerType.ALL)))
                     .into(logo);
             txtName.setText(mCurrTweet.getUser().getName());
             txtScreenName.setText("@" + mCurrTweet.getUser().getScreenName());
@@ -106,7 +106,7 @@ public class DetailActivity extends AppCompatActivity {
             {
                 Glide.with(this)
                         .load(mCurrTweet.getMedia().get(0).getMediaUrl())
-                        .bitmapTransform(new RoundedCornersTransformation(this, 8, 4))
+                        .apply(new RequestOptions().transform(new RoundedCornersTransformation(4, 8, RoundedCornersTransformation.CornerType.ALL)))
                         .into(media);
                 media.setVisibility(View.VISIBLE);
             }
