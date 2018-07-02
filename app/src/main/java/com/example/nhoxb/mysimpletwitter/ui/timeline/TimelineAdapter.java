@@ -17,12 +17,12 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.nhoxb.mysimpletwitter.R;
-import com.example.nhoxb.mysimpletwitter.model.Media;
-import com.example.nhoxb.mysimpletwitter.model.Tweet;
-import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
-import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
-import com.example.nhoxb.mysimpletwitter.ui.base.TweetComposerDialogFragment;
-import com.example.nhoxb.mysimpletwitter.utils.Utils;
+import com.example.nhoxb.mysimpletwitter.TwitterApplication;
+import com.example.nhoxb.mysimpletwitter.data.DataManager;
+import com.example.nhoxb.mysimpletwitter.data.remote.model.Media;
+import com.example.nhoxb.mysimpletwitter.data.remote.model.Tweet;
+import com.example.nhoxb.mysimpletwitter.ui.custom.TweetComposerDialogFragment;
+import com.example.nhoxb.mysimpletwitter.utils.FormatUtils;
 import com.google.gson.Gson;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -39,56 +39,45 @@ import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 /**
  * Created by nhoxb on 10/29/2016.
  */
-public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.TimelineViewHolder>
-{
+public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.TimelineViewHolder> {
     List<Tweet> mTweetList;
     Context mContext;
     private OnItemTweetClickListener mListener;
-    private TwitterClient mClient;
+    private DataManager dataManager;
     private Gson mGson;
 
     public TimelineAdapter(Context context) {
         mTweetList = new ArrayList<>();
         mContext = context;
-        mClient = TwitterApplication.getRestClient();
+        dataManager = TwitterApplication.getDataManager();
         mGson = new Gson();
     }
 
-    public interface OnItemTweetClickListener
-    {
-        public void onClick(Tweet tweet);
-    }
-
-    public void setOnItemClickListener(OnItemTweetClickListener listener)
-    {
+    public void setOnItemClickListener(OnItemTweetClickListener listener) {
         mListener = listener;
     }
 
-    public void setTweet( List<Tweet> tweetList)
-    {
+    public void setTweet(List<Tweet> tweetList) {
         mTweetList.clear();
         mTweetList.addAll(tweetList);
         notifyDataSetChanged();
     }
 
-    public void addTweet(List<Tweet> tweetList)
-    {
+    public void addTweet(List<Tweet> tweetList) {
         int position = mTweetList.size();
         mTweetList.addAll(tweetList);
         notifyItemRangeInserted(position, tweetList.size());
     }
 
-    public void addTweetOnTop(Tweet tweet)
-    {
-        mTweetList.add(0,tweet);
-       notifyItemInserted(0);
+    public void addTweetOnTop(Tweet tweet) {
+        mTweetList.add(0, tweet);
+        notifyItemInserted(0);
     }
 
     public void clear() {
         mTweetList.clear();
         notifyDataSetChanged();
     }
-
 
     @Override
     public TimelineViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -105,7 +94,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
         holder.txtBody.setText(tweet.getBody());
         holder.txtName.setText(tweet.getUser().getName());
         holder.txtScreenName.setText("@" + tweet.getUser().getScreenName());
-        holder.txtTime.setText(Utils.getRelativeTimeAgo(tweet.getCreatedAt()));
+        holder.txtTime.setText(FormatUtils.getRelativeTimeAgo(tweet.getCreatedAt()));
         holder.txtRetweet.setText(String.valueOf(tweet.getRetweetCount()));
         holder.txtLike.setText(String.valueOf(tweet.getFavouriteCount()));
 
@@ -115,8 +104,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                 .into(holder.avatar);
 
         List<Media> mediaList = tweet.getMedia();
-        if (mediaList != null && mediaList.size() > 0)
-        {
+        if (mediaList != null && mediaList.size() > 0) {
             holder.media.setVisibility(View.VISIBLE);
             Glide.with(mContext)
                     .load(mediaList.get(0).getMediaUrl())
@@ -129,17 +117,16 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
 
     }
 
-    private void setupIcon(Tweet tweet, TimelineViewHolder viewholder)
-    {
+    private void setupIcon(Tweet tweet, TimelineViewHolder viewholder) {
         if (tweet.isRetweeted())
-            viewholder.btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.retweeted));
+            viewholder.btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.retweeted));
         else
-            viewholder.btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.unretweet));
+            viewholder.btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.unretweet));
 
         if (tweet.isFavourited())
-            viewholder.btnLike.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.heart));
+            viewholder.btnLike.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.heart));
         else
-            viewholder.btnLike.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.heart_outline));
+            viewholder.btnLike.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.heart_outline));
 
     }
 
@@ -148,27 +135,41 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
         return mTweetList.size();
     }
 
-    class TimelineViewHolder extends RecyclerView.ViewHolder
-    {
-        @BindView(R.id.iv_avatar) ImageView avatar;
-        @BindView(R.id.tv_username) TextView txtName;
-        @BindView(R.id.tv_user_screenname) TextView txtScreenName;
-        @BindView(R.id.tv_tweet_body) TextView txtBody;
-        @BindView(R.id.tv_time) TextView txtTime;
-        @BindView(R.id.btn_item_reply) ImageButton  btnReply;
-        @BindView(R.id.btn_item_retweet) ImageButton btnRetweet;
-        @BindView(R.id.btn_item_like) ImageButton btnLike;
-        @BindView(R.id.tv_count_retweet) TextView txtRetweet;
-        @BindView(R.id.tv_count_like) TextView txtLike;
-        @BindView(R.id.iv_media)    ImageView media;
-        @BindView(R.id.item_tweet_container) RelativeLayout container;
+    public interface OnItemTweetClickListener {
+        public void onClick(Tweet tweet);
+    }
+
+    class TimelineViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.iv_avatar)
+        ImageView avatar;
+        @BindView(R.id.tv_username)
+        TextView txtName;
+        @BindView(R.id.tv_user_screenname)
+        TextView txtScreenName;
+        @BindView(R.id.tv_tweet_body)
+        TextView txtBody;
+        @BindView(R.id.tv_time)
+        TextView txtTime;
+        @BindView(R.id.btn_item_reply)
+        ImageButton btnReply;
+        @BindView(R.id.btn_item_retweet)
+        ImageButton btnRetweet;
+        @BindView(R.id.btn_item_like)
+        ImageButton btnLike;
+        @BindView(R.id.tv_count_retweet)
+        TextView txtRetweet;
+        @BindView(R.id.tv_count_like)
+        TextView txtLike;
+        @BindView(R.id.iv_media)
+        ImageView media;
+        @BindView(R.id.item_tweet_container)
+        RelativeLayout container;
 
         private int position;
 
         public TimelineViewHolder(final View itemView) {
             super(itemView);
-            ButterKnife.bind(this,itemView);
-
+            ButterKnife.bind(this, itemView);
 
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -187,12 +188,10 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                 @Override
                 public void onClick(View view) {
                     position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION)
-                    {
+                    if (position != RecyclerView.NO_POSITION) {
                         final Tweet mCurrTweet = mTweetList.get(position);
                         if (!mCurrTweet.isFavourited()) {
-                            mClient.favouriteStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler()
-                            {
+                            dataManager.favouriteStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                     super.onSuccess(statusCode, headers, response);
@@ -203,14 +202,10 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
 
                                 }
                             });
-                        }
-                        else
-                        {
-                            mClient.unFavouriteStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler()
-                            {
+                        } else {
+                            dataManager.unFavouriteStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler() {
                                 @Override
-                                public void onSuccess(int statusCode, Header[] headers, JSONObject response)
-                                {
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                     super.onSuccess(statusCode, headers, response);
                                     btnLike.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.heart_outline));
                                     Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
@@ -229,11 +224,9 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                 @Override
                 public void onClick(View view) {
                     position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION)
-                    {
+                    if (position != RecyclerView.NO_POSITION) {
                         Tweet tweet = mTweetList.get(position);
-                        TweetComposerDialogFragment.showReplyComposer((Activity)mContext, tweet.getUser().getScreenName(), tweet.getUid(), new JsonHttpResponseHandler()
-                        {
+                        TweetComposerDialogFragment.showReplyComposer((Activity) mContext, tweet.getUser().getScreenName(), tweet.getUid(), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 super.onSuccess(statusCode, headers, response);
@@ -256,43 +249,13 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
             //Retweet
             btnRetweet.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view)
-                {
+                public void onClick(View view) {
                     position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION)
-                    { // Check if an item was deleted, but the user clicked it before the UI removed it
+                    if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
                         final Tweet mCurrTweet = mTweetList.get(position);
 
-                        if (!mCurrTweet.isRetweeted())
-                        {
-                            mClient.retweetStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler()
-                            {
-                                @Override
-                                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                                    super.onFailure(statusCode, headers, responseString, throwable);
-                                    Log.e("APP", "unretweet failed");
-                                }
-
-                                @Override
-                                public void onSuccess(int statusCode, Header[] headers, JSONObject response)
-                                {
-                                    super.onSuccess(statusCode, headers, response);
-                                    Toast.makeText(btnRetweet.getContext(),"Đã tweet lại", Toast.LENGTH_SHORT).show();
-                                    btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.retweeted));
-
-                                    //Set new
-                                    Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
-                                    addTweetOnTop(tweet);
-                                    //mRecyclerView.scrollToPosition(0);
-                                    mCurrTweet.setRetweet(true);
-                                    txtRetweet.setText(String.valueOf(mCurrTweet.getRetweetCount()));
-                                }
-                            });
-                        }
-                        else
-                        {
-                            mClient.unRetweetStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler()
-                            {
+                        if (!mCurrTweet.isRetweeted()) {
+                            dataManager.retweetStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler() {
                                 @Override
                                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                                     super.onFailure(statusCode, headers, responseString, throwable);
@@ -302,7 +265,29 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                     super.onSuccess(statusCode, headers, response);
-                                    btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext,R.drawable.unretweet));
+                                    Toast.makeText(btnRetweet.getContext(), "Đã tweet lại", Toast.LENGTH_SHORT).show();
+                                    btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.retweeted));
+
+                                    //Set new
+                                    Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
+                                    addTweetOnTop(tweet);
+                                    //mRecyclerView.scrollToPosition(0);
+                                    mCurrTweet.setRetweet(true);
+                                    txtRetweet.setText(String.valueOf(mCurrTweet.getRetweetCount()));
+                                }
+                            });
+                        } else {
+                            dataManager.unRetweetStatus(mCurrTweet.getUid(), new JsonHttpResponseHandler() {
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                    super.onFailure(statusCode, headers, responseString, throwable);
+                                    Log.e("APP", "unretweet failed");
+                                }
+
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                    super.onSuccess(statusCode, headers, response);
+                                    btnRetweet.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.unretweet));
 
                                     //Set new
                                     //Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);

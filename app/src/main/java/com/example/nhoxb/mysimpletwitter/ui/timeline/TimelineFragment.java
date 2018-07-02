@@ -14,13 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.nhoxb.mysimpletwitter.R;
-import com.example.nhoxb.mysimpletwitter.activity.DetailActivity;
-import com.example.nhoxb.mysimpletwitter.activity.TimelineActivity;
-import com.example.nhoxb.mysimpletwitter.model.Tweet;
-import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
-import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
-import com.example.nhoxb.mysimpletwitter.ui.base.DividerItemDecoration;
-import com.example.nhoxb.mysimpletwitter.ui.base.EndlessRecyclerViewScrollListener;
+import com.example.nhoxb.mysimpletwitter.TwitterApplication;
+import com.example.nhoxb.mysimpletwitter.data.DataManager;
+import com.example.nhoxb.mysimpletwitter.data.remote.model.Tweet;
+import com.example.nhoxb.mysimpletwitter.ui.custom.DividerItemDecoration;
+import com.example.nhoxb.mysimpletwitter.ui.custom.EndlessRecyclerViewScrollListener;
+import com.example.nhoxb.mysimpletwitter.ui.detail.DetailActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -40,21 +39,22 @@ import cz.msebera.android.httpclient.Header;
  * A simple {@link Fragment} subclass.
  */
 public class TimelineFragment extends Fragment {
-
     public static final String KEY_TWEET_DETAIL = "tweet_detail";
     public static final int HOME_TIMELINE = 0;
     public static final int MENTIONS_TIMELINE = 1;
     public static final String KEY_FRAGMENT_TYPE = "fragment_type";
+    private static final String TAG = TimelineFragment.class.getSimpleName();
     RecyclerView mRecyclerView;
     private TimelineAdapter mTimelineAdapter;
     private LinearLayoutManager layoutManager;
-    private TwitterClient mClient;
+    private DataManager dataManager;
     private Context mContext;
     private Gson mGson;
     private int mType;
 
     public TimelineFragment() {
         // Required empty public constructor
+        dataManager = TwitterApplication.getDataManager();
     }
 
     public static TimelineFragment newInstance(int type) {
@@ -79,12 +79,9 @@ public class TimelineFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-        mClient = TwitterApplication.getRestClient();
         mGson = new Gson();
 
-        mType = getArguments().getInt(KEY_FRAGMENT_TYPE,HOME_TIMELINE);
-
+        mType = getArguments().getInt(KEY_FRAGMENT_TYPE, HOME_TIMELINE);
 
         //Recycler View, Adapter
         mTimelineAdapter = new TimelineAdapter(getContext());
@@ -106,7 +103,7 @@ public class TimelineFragment extends Fragment {
         mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadMoreTweet(mType,page);
+                loadMoreTweet(mType, page);
             }
         });
 
@@ -114,8 +111,7 @@ public class TimelineFragment extends Fragment {
     }
 
     private void loadTweets(int mType) {
-        switch (mType)
-        {
+        switch (mType) {
             case HOME_TIMELINE:
                 populateHomeTimeline();
                 break;
@@ -125,21 +121,20 @@ public class TimelineFragment extends Fragment {
                 break;
 
             default:
-                Log.e("APP TWEET", "Error loading tweets");
+                Log.e(TAG, "Error loading tweets");
                 break;
         }
     }
 
 
-    private void populateHomeTimeline()
-    {
-        mClient.getHomeTimeline(1, new JsonHttpResponseHandler()
-        {
+    private void populateHomeTimeline() {
+        dataManager.getHomeTimeline(1, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 super.onSuccess(statusCode, headers, response);
-                Log.v("APP","Load timeline success.");
-                List<Tweet> mTweetList = mGson.fromJson(response.toString(), new TypeToken<List<Tweet>>(){}.getType() );
+                Log.v(TAG, "Load timeline success.");
+                List<Tweet> mTweetList = mGson.fromJson(response.toString(), new TypeToken<List<Tweet>>() {
+                }.getType());
                 mTimelineAdapter.setTweet(mTweetList);
                 EventBus.getDefault().post(new FragmentMessageEvent(true));
 
@@ -148,21 +143,20 @@ public class TimelineFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
-                Log.v("APP","Load timeline failed.");
+                Log.v(TAG, "Load timeline failed.");
                 EventBus.getDefault().post(new FragmentMessageEvent(true));
             }
         });
     }
 
-    private void populateMentionTimeline()
-    {
-        mClient.getMentionTimeline(1, new JsonHttpResponseHandler()
-        {
+    private void populateMentionTimeline() {
+        dataManager.getMentionTimeline(1, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 super.onSuccess(statusCode, headers, response);
-                Log.v("APP","Load mention success.");
-                List<Tweet> mTweetList = mGson.fromJson(response.toString(), new TypeToken<List<Tweet>>(){}.getType() );
+                Log.v(TAG, "Load mention success.");
+                List<Tweet> mTweetList = mGson.fromJson(response.toString(), new TypeToken<List<Tweet>>() {
+                }.getType());
                 mTimelineAdapter.setTweet(mTweetList);
                 EventBus.getDefault().post(new FragmentMessageEvent(true));
             }
@@ -170,38 +164,36 @@ public class TimelineFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
-                Log.v("APP","Load mention failed.");
+                Log.v(TAG, "Load mention failed.");
                 EventBus.getDefault().post(new FragmentMessageEvent(true));
             }
         });
     }
 
-    private void loadMoreTweet(final int type, final int page)
-    {
-        JsonHttpResponseHandler handler = new JsonHttpResponseHandler()
-        {
+    private void loadMoreTweet(final int type, final int page) {
+        JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 super.onSuccess(statusCode, headers, response);
-                Log.v("APP","Load success. Type: " + type + " Page: " + page);
-                List<Tweet> mTweetList = mGson.fromJson(response.toString(), new TypeToken<List<Tweet>>(){}.getType() );
+                Log.v(TAG, "Load success. Type: " + type + " Page: " + page);
+                List<Tweet> mTweetList = mGson.fromJson(response.toString(), new TypeToken<List<Tweet>>() {
+                }.getType());
                 mTimelineAdapter.addTweet(mTweetList);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
-                Log.e("APP", "Load more failed: Type: " + type);
+                Log.e(TAG, "Load more failed: Type: " + type);
             }
         };
-        switch (type)
-        {
+        switch (type) {
             case HOME_TIMELINE:
-                mClient.getHomeTimeline(page, handler);
+                dataManager.getHomeTimeline(page, handler);
                 break;
 
             case MENTIONS_TIMELINE:
-                mClient.getMentionTimeline(page,handler);
+                dataManager.getMentionTimeline(page, handler);
                 break;
         }
     }
@@ -219,32 +211,27 @@ public class TimelineFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onActivityMessageEvent(TimelineActivity.ActivityMessageEvent event)
-    {
-        if (event.isPullToRefresh)
-        {
+    public void onActivityMessageEvent(TimelineActivity.ActivityMessageEvent event) {
+        if (event.isPullToRefresh) {
             loadTweets(mType);
         }
 
-        if (event.isAddTweetToTop)
-        {
+        if (event.isAddTweetToTop) {
             mTimelineAdapter.addTweetOnTop(event.getTweet());
             mRecyclerView.smoothScrollToPosition(0);
         }
     }
 
-    public static class FragmentMessageEvent
-    {
-        public FragmentMessageEvent(boolean isFinishRefresh)
-        {
+    public static class FragmentMessageEvent {
+        boolean isFinishRefresh = false;
+
+        public FragmentMessageEvent(boolean isFinishRefresh) {
             this.isFinishRefresh = isFinishRefresh;
         }
 
         public boolean isFinishRefresh() {
             return isFinishRefresh;
         }
-
-        boolean isFinishRefresh = false;
     }
 
 

@@ -1,6 +1,5 @@
 package com.example.nhoxb.mysimpletwitter.ui.profile;
 
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -12,6 +11,7 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
 
     private int TAB_COUNT = 3;
     private String titles[] = new String[]{"Tweet", "Phương tiện", "Lượt thích"};
+
     public ProfilePagerAdapter(FragmentManager fm) {
         super(fm);
     }
@@ -19,8 +19,7 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        switch (position)
-        {
+        switch (position) {
             case 0:
                 return ProfileFragment.newInstance(ProfileFragment.TWEET_LIST);
             case 1:

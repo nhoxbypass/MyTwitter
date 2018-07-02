@@ -1,36 +1,41 @@
-package com.example.nhoxb.mysimpletwitter.activity;
+package com.example.nhoxb.mysimpletwitter.ui.profile;
 
+import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.nhoxb.mysimpletwitter.R;
-import com.example.nhoxb.mysimpletwitter.model.User;
-import com.example.nhoxb.mysimpletwitter.ui.profile.ProfilePagerAdapter;
+import com.example.nhoxb.mysimpletwitter.data.remote.model.User;
+import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    @BindView(R.id.appbar_layout) AppBarLayout mAppBarLayout;
-    @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
-    @BindView(R.id.toolbar) Toolbar mToolbar;
-    @BindView(R.id.iv_cover) ImageView mCover;
-    @BindView(R.id.iv_avatar) ImageView mAvatar;
-    @BindView(R.id.viewpager) ViewPager mViewPager;
-    @BindView(R.id.tablayout) TabLayout mTabLayout;
-    ProfilePagerAdapter mPagerAdapter;
-    User mUser;
+    @BindView(R.id.appbar_layout)
+    AppBarLayout mAppBarLayout;
+    @BindView(R.id.collapsing_toolbar)
+    CollapsingToolbarLayout mCollapsingToolbar;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.iv_cover)
+    ImageView mCover;
+    @BindView(R.id.iv_avatar)
+    ImageView mAvatar;
+    @BindView(R.id.viewpager)
+    ViewPager mViewPager;
+    @BindView(R.id.tablayout)
+    TabLayout mTabLayout;
+
+    private ProfilePagerAdapter mPagerAdapter;
+    private User mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +65,8 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 int maxScroll = appBarLayout.getTotalScrollRange(); //350 - 160 = 190
-                float percentage = (float) (maxScroll + verticalOffset) / (float) (mAvatar.getHeight()*2);
-                if (percentage >= 0.25)
-                {
+                float percentage = (float) (maxScroll + verticalOffset) / (float) (mAvatar.getHeight() * 2);
+                if (percentage >= 0.25) {
 
                     //ViewCompat.animate(mAvatar).scaleX(percentage).setDuration(100);
                     //ViewCompat.animate(mAvatar).scaleY(percentage).setDuration(100);
@@ -70,7 +74,7 @@ public class ProfileActivity extends AppCompatActivity {
                     mAvatar.setScaleY(percentage);
                     //mAvatar.setTranslationY(verticalOffset);
                     //mAvatar.getLayoutParams().width += percentage*80;
-                   // mAvatar.getLayoutParams().height += percentage*80;
+                    // mAvatar.getLayoutParams().height += percentage*80;
                 }
 
             }

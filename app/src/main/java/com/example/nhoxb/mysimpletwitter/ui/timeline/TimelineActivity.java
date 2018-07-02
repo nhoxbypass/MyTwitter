@@ -1,4 +1,4 @@
-package com.example.nhoxb.mysimpletwitter.activity;
+package com.example.nhoxb.mysimpletwitter.ui.timeline;
 
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -35,13 +35,12 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.nhoxb.mysimpletwitter.R;
-import com.example.nhoxb.mysimpletwitter.model.Tweet;
-import com.example.nhoxb.mysimpletwitter.model.User;
-import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
-import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
-import com.example.nhoxb.mysimpletwitter.ui.base.TweetComposerDialogFragment;
-import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelineFragment;
-import com.example.nhoxb.mysimpletwitter.ui.timeline.TimelinePagerAdapter;
+import com.example.nhoxb.mysimpletwitter.TwitterApplication;
+import com.example.nhoxb.mysimpletwitter.data.DataManager;
+import com.example.nhoxb.mysimpletwitter.data.remote.model.Tweet;
+import com.example.nhoxb.mysimpletwitter.data.remote.model.User;
+import com.example.nhoxb.mysimpletwitter.ui.custom.TweetComposerDialogFragment;
+import com.example.nhoxb.mysimpletwitter.ui.profile.ProfileActivity;
 import com.google.gson.Gson;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -56,29 +55,34 @@ import cz.msebera.android.httpclient.Header;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class TimelineActivity extends AppCompatActivity {
-
     public static final String KEY_PROFILE = "profile";
-    private TwitterClient mClient;
-    private Gson mGson;
-    private TimelinePagerAdapter pagerAdapter;
+    private static final String TAG = TimelineActivity.class.getSimpleName();
     //@BindView(R.id.rv_list_tweet) RecyclerView mRecyclerView;
-    @BindView(R.id.toolbar) Toolbar mToolbar;
-    @BindView(R.id.swipe_refresh) SwipeRefreshLayout mSwipeRefresh;
-    @BindView(R.id.fab_compose) FloatingActionButton mFABCompose;
-    @BindView(R.id.tablayout) TabLayout mTabLayout;
-    @BindView(R.id.viewpager) ViewPager mViewPager;
-    @BindView(R.id.nav_view) NavigationView mNavigationView;
-    @BindView(R.id.drawer_layout) DrawerLayout mDrawerLayout;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout mSwipeRefresh;
+    @BindView(R.id.fab_compose)
+    FloatingActionButton mFABCompose;
+    @BindView(R.id.tablayout)
+    TabLayout mTabLayout;
+    @BindView(R.id.viewpager)
+    ViewPager mViewPager;
+    @BindView(R.id.nav_view)
+    NavigationView mNavigationView;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout mDrawerLayout;
     View mHeaderLayout;
     LinearLayout mNavHeaderContainer;
     ImageView mNavHeaderAvatar;
     TextView mNavHeaderName;
     TextView mNavHeaderScreenName;
-
+    private DataManager dataManager;
+    private Gson mGson;
+    private TimelinePagerAdapter pagerAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private SearchView mSearchView;
     private User mUser;
-
 
 
     @Override
@@ -88,8 +92,6 @@ public class TimelineActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-
-
         //Toolbar
         setSupportActionBar(mToolbar);
         mDrawerToggle = setupDrawerToggle();
@@ -97,8 +99,7 @@ public class TimelineActivity extends AppCompatActivity {
         mNavHeaderContainer = (LinearLayout) mHeaderLayout.findViewById(R.id.nav_header_container);
         mNavHeaderAvatar = (ImageView) mHeaderLayout.findViewById(R.id.nav_header_avatar);
         mNavHeaderName = (TextView) mHeaderLayout.findViewById(R.id.nav_header_name);
-        mNavHeaderScreenName = (TextView)mHeaderLayout.findViewById(R.id.nav_header_screenname);
-
+        mNavHeaderScreenName = (TextView) mHeaderLayout.findViewById(R.id.nav_header_screenname);
 
 
         // Tie DrawerLayout events to the ActionBarToggle
@@ -112,8 +113,7 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 mSwipeRefresh.setEnabled(false);
-                switch(motionEvent.getAction())
-                {
+                switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_UP:
                         mSwipeRefresh.setEnabled(true);
                         break;
@@ -134,10 +134,8 @@ public class TimelineActivity extends AppCompatActivity {
             }
         });
         mSwipeRefresh.setColorSchemeResources(R.color.googleRed, R.color.googleGreen, R.color.googleBlue, R.color.googleYellow);
-        mSwipeRefresh.setProgressViewOffset(true,0,40);
+        mSwipeRefresh.setProgressViewOffset(true, 0, 40);
         mSwipeRefresh.setRefreshing(true);
-
-
 
 
         mFABCompose.setOnClickListener(new View.OnClickListener() {
@@ -147,7 +145,7 @@ public class TimelineActivity extends AppCompatActivity {
             }
         });
 
-        mClient = TwitterApplication.getRestClient();
+        dataManager = TwitterApplication.getDataManager();
         mGson = new Gson();
 
         //get user
@@ -166,13 +164,12 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private void getUserCredential() {
-        mClient.verifyUser(new JsonHttpResponseHandler()
-        {
+        dataManager.verifyUser(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 super.onSuccess(statusCode, headers, response);
                 mUser = mGson.fromJson(response.toString(), User.class);
-                Log.v("APP TWEET", "Get user credential success");
+                Log.v(TAG, "Get user credential success");
 
                 Glide.with(TimelineActivity.this)
                         .asBitmap()
@@ -180,9 +177,8 @@ public class TimelineActivity extends AppCompatActivity {
                         .into(new SimpleTarget<Bitmap>() {
                             @Override
                             public void onResourceReady(Bitmap resource, Transition<? super Bitmap> glideAnimation) {
-                                Drawable drawable = new BitmapDrawable(TimelineActivity.this.getResources(),resource);
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                                {
+                                Drawable drawable = new BitmapDrawable(TimelineActivity.this.getResources(), resource);
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                     mNavHeaderContainer.setBackground(drawable);
                                 }
                             }
@@ -199,13 +195,13 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
-                Log.v("APP TWEET", "Get user credential failed: " + responseString);
+                Log.v(TAG, "Get user credential failed: " + responseString);
             }
         });
     }
 
     private ActionBarDrawerToggle setupDrawerToggle() {
-        return new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar ,R.string.drawer_open, R.string.drawer_close);
+        return new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
     }
 
 
@@ -222,15 +218,14 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onFragmentMessageEvent(TimelineFragment.FragmentMessageEvent event)
-    {
-        if(event.isFinishRefresh())
+    public void onFragmentMessageEvent(TimelineFragment.FragmentMessageEvent event) {
+        if (event.isFinishRefresh())
             mSwipeRefresh.setRefreshing(false);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_timeline,menu);
+        getMenuInflater().inflate(R.menu.menu_timeline, menu);
         MenuItem itemSearchView = menu.findItem(R.id.action_search);
         mSearchView = (SearchView) MenuItemCompat.getActionView(itemSearchView);
 
@@ -251,14 +246,11 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        if (mDrawerToggle.onOptionsItemSelected(item))
-        {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        switch (item.getItemId())
-        {
+        switch (item.getItemId()) {
             case R.id.action_compose:
                 showComposer();
                 return true;
@@ -288,45 +280,40 @@ public class TimelineActivity extends AppCompatActivity {
     private void showComposer() {
         FragmentManager fm = getSupportFragmentManager();
         TweetComposerDialogFragment composerDialogFragment = TweetComposerDialogFragment.newInstance("");
-        composerDialogFragment.setStyle(DialogFragment.STYLE_NORMAL,R.style.Dialog_FullScreen);
-        composerDialogFragment.show(getFragmentManager(),"fragment_compose_tweet");
+        composerDialogFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_FullScreen);
+        composerDialogFragment.show(getFragmentManager(), TweetComposerDialogFragment.FRAGMENT_COMPOSE_TWEET_TAG);
         composerDialogFragment.setOnTweetedListener(new TweetComposerDialogFragment.TweetComposerDialogListener() {
             @Override
             public void onTweeted(String body) {
-                mClient.updateStatus(body, "", new JsonHttpResponseHandler()
-                {
+                dataManager.updateStatus(body, "", new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         super.onSuccess(statusCode, headers, response);
-                        Tweet tweet = mGson.fromJson(response.toString(),Tweet.class);
+                        Tweet tweet = mGson.fromJson(response.toString(), Tweet.class);
                         EventBus.getDefault().post(new ActivityMessageEvent(tweet, ActivityMessageEvent.ADD_TWEET_TO_TOP));
                         //.mRecyclerView.scrollToPosition(0);
-                        Log.v("APP", "Tweeted timeline");
+                        Log.v(TAG, "Tweeted timeline");
 
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                         super.onFailure(statusCode, headers, responseString, throwable);
-                        Log.e("APP", "Failed timeline");
+                        Log.e(TAG, "Failed timeline");
                     }
                 });
             }
         });
     }
 
-    public static class ActivityMessageEvent
-    {
+    public static class ActivityMessageEvent {
         public static final int PULL_TO_REFRESH = 0;
         public static final int ADD_TWEET_TO_TOP = 1;
+        public boolean isPullToRefresh = false;
+        public boolean isAddTweetToTop = false;
         private Tweet mTweet;
 
-        public Tweet getTweet() {
-            return mTweet;
-        }
-
-        public ActivityMessageEvent(Tweet tweet, int type)
-        {
+        public ActivityMessageEvent(Tweet tweet, int type) {
             mTweet = tweet;
             if (mTweet != null && type == ADD_TWEET_TO_TOP)
                 isAddTweetToTop = true;
@@ -339,8 +326,9 @@ public class TimelineActivity extends AppCompatActivity {
                 isPullToRefresh = false;
         }
 
-        public boolean isPullToRefresh = false;
-        public boolean isAddTweetToTop = false;
+        public Tweet getTweet() {
+            return mTweet;
+        }
     }
 
 }

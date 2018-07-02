@@ -9,7 +9,7 @@ import java.util.Locale;
 /**
  * Created by nhoxb on 10/29/2016.
  */
-public class Utils {
+public class FormatUtils {
     public static String getRelativeTimeAgo(String rawJsonDate) {
         String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
         SimpleDateFormat sf = new SimpleDateFormat(twitterFormat, Locale.ENGLISH);

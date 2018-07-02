@@ -1,12 +1,11 @@
-package com.example.nhoxb.mysimpletwitter.model;
+package com.example.nhoxb.mysimpletwitter.data.remote.model;
 
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by nhoxb on 10/30/2016.
  */
-public class Profile
-{
+public class Profile {
     @SerializedName("id")
     private long id;
     @SerializedName("name")

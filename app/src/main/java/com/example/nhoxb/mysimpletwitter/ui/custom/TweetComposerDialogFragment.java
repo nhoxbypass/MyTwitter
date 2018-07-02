@@ -1,4 +1,4 @@
-package com.example.nhoxb.mysimpletwitter.ui.base;
+package com.example.nhoxb.mysimpletwitter.ui.custom;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,23 +20,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.nhoxb.mysimpletwitter.R;
-import com.example.nhoxb.mysimpletwitter.model.Tweet;
-import com.example.nhoxb.mysimpletwitter.rest.TwitterApplication;
-import com.example.nhoxb.mysimpletwitter.rest.TwitterClient;
-import com.google.gson.Gson;
+import com.example.nhoxb.mysimpletwitter.TwitterApplication;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-import org.json.JSONObject;
-import org.w3c.dom.Text;
-
-import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by nhoxb on 10/29/2016.
  */
-public class TweetComposerDialogFragment extends DialogFragment
-{
+public class TweetComposerDialogFragment extends DialogFragment {
+    public static final String FRAGMENT_COMPOSE_TWEET_TAG = "fragment_compose_tweet";
+
     Button mCloseButton;
     Button mTweetButton;
     EditText mInputField;
@@ -47,57 +38,46 @@ public class TweetComposerDialogFragment extends DialogFragment
 
     private TweetComposerDialogListener mListener;
 
-    // 1. Defines the listener interface with a method passing back data result.
-    public interface TweetComposerDialogListener {
-        void onTweeted(String body);
-    }
-
-
     public TweetComposerDialogFragment() {
         // Empty constructor is required for DialogFragment
         // Make sure not to add arguments to the constructor
         // Use `newInstance` instead as shown below
     }
 
-    public static TweetComposerDialogFragment newInstance(String name)
-    {
+    public static TweetComposerDialogFragment newInstance(String name) {
         TweetComposerDialogFragment fragment = new TweetComposerDialogFragment();
 
         Bundle args = new Bundle();
-        args.putString("name",name);
+        args.putString("name", name);
         fragment.setArguments(args);
 
         return fragment;
     }
 
-    public static void showReplyComposer(Activity activity, String screenName, final long tweetedUid, final AsyncHttpResponseHandler handler)
-    {
+    public static void showReplyComposer(Activity activity, String screenName, final long tweetedUid, final AsyncHttpResponseHandler handler) {
         TweetComposerDialogFragment fragment = TweetComposerDialogFragment.newInstance(screenName);
-        fragment.setStyle(DialogFragment.STYLE_NORMAL,R.style.Dialog_FullScreen);
-        fragment.show(activity.getFragmentManager(), "fragment_compose_tweet");
+        fragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_FullScreen);
+        fragment.show(activity.getFragmentManager(), FRAGMENT_COMPOSE_TWEET_TAG);
         fragment.setOnTweetedListener(new TweetComposerDialogFragment.TweetComposerDialogListener() {
             @Override
             public void onTweeted(String body) {
-                TwitterApplication.getRestClient().updateStatus(body, String.valueOf(tweetedUid),handler);
+                TwitterApplication.getDataManager().updateStatus(body, String.valueOf(tweetedUid), handler);
             }
         });
     }
 
-    public void setOnTweetedListener(TweetComposerDialogListener onTweetedListener)
-    {
+    public void setOnTweetedListener(TweetComposerDialogListener onTweetedListener) {
         mListener = onTweetedListener;
     }
 
-    private void setReplyMode(String screenName)
-    {
+    private void setReplyMode(String screenName) {
         mReplyText.setText("In reply to " + screenName);
         mInputField.append("@" + screenName + " ");
         mReplyContainer.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState)
-    {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
         //request
@@ -122,7 +102,7 @@ public class TweetComposerDialogFragment extends DialogFragment
         mTweetButton = (Button) view.findViewById(R.id.btn_tweet);
         mCharCountTextview = (TextView) view.findViewById(R.id.tv_count_char);
         mInputField = (EditText) view.findViewById(R.id.tweet_input);
-        mReplyContainer  = (RelativeLayout) view.findViewById(R.id.reply_container);
+        mReplyContainer = (RelativeLayout) view.findViewById(R.id.reply_container);
         mReplyText = (TextView) view.findViewById(R.id.tv_reply);
 
         setCharsCounter(mInputField);
@@ -146,8 +126,7 @@ public class TweetComposerDialogFragment extends DialogFragment
             }
         });
 
-        if (!(replyName == null || replyName.equals("") || replyName.isEmpty()))
-        {
+        if (!(replyName == null || replyName.equals("") || replyName.isEmpty())) {
             setReplyMode(replyName);
         }
     }
@@ -157,7 +136,6 @@ public class TweetComposerDialogFragment extends DialogFragment
         super.onStart();
         getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
-
 
     @Override
     public void onResume() {
@@ -169,16 +147,14 @@ public class TweetComposerDialogFragment extends DialogFragment
         layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
 
         //Set the layout params back to the dialog
-        getDialog().getWindow().setAttributes((WindowManager.LayoutParams)layoutParams);
+        getDialog().getWindow().setAttributes((WindowManager.LayoutParams) layoutParams);
 
         // Call super onResume after sizing
         super.onResume();
     }
 
-
     //
-    private void setCharsCounter(EditText editText)
-    {
+    private void setCharsCounter(EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -188,22 +164,16 @@ public class TweetComposerDialogFragment extends DialogFragment
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mCharCountTextview.setText(String.valueOf(140 - s.length()));
-                if (s.length() > 140)
-                {
+                if (s.length() > 140) {
                     mCharCountTextview.setTextColor(ContextCompat.getColor(mCharCountTextview.getContext(), R.color.googleRed));
-                }
-                else
-                {
+                } else {
                     mCharCountTextview.setTextColor(Color.parseColor("#9E9E9E"));
                 }
 
-                if (s.length() > 0 && s.length() <= 140)
-                {
+                if (s.length() > 0 && s.length() <= 140) {
                     //Limit the number of char in one tweet
                     mTweetButton.setEnabled(true);
-                }
-                else
-                {
+                } else {
                     mTweetButton.setEnabled(false);
                     mReplyContainer.setVisibility(View.GONE);
                 }
@@ -215,5 +185,11 @@ public class TweetComposerDialogFragment extends DialogFragment
 
             }
         });
+    }
+
+
+    // 1. Defines the listener interface with a method passing back data result.
+    public interface TweetComposerDialogListener {
+        void onTweeted(String body);
     }
 }
